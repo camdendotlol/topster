@@ -1,5 +1,3 @@
-import { Canvas } from 'canvas'
-
 export interface ChartItem {
   title: string,
   creator?: string,
@@ -20,13 +18,13 @@ export interface Chart {
 }
 
 const generateChart = (
-  canvas: Canvas,
+  canvas: HTMLCanvasElement,
   title: string,
   items: ChartItem[],
   chartSize: { x: number, y: number },
   color: string,
   showTitles: boolean
-): Canvas => {
+): HTMLCanvasElement => {
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
@@ -89,7 +87,7 @@ const generateChart = (
 }
 
 const insertCoverImages = (
-  canvas: Canvas,
+  canvas: HTMLCanvasElement,
   items: ChartItem[],
   cellSize: number,
   dimensions: { x: number, y: number },

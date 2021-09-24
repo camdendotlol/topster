@@ -1,4 +1,3 @@
-import { Canvas } from 'canvas';
 export interface ChartItem {
     title: string;
     creator?: string;
@@ -15,8 +14,8 @@ export interface Chart {
     color: string;
     showTitles: boolean;
 }
-declare const generateChart: (canvas: Canvas, title: string, items: ChartItem[], chartSize: {
+declare const generateChart: (canvas: HTMLCanvasElement, title: string, items: ChartItem[], chartSize: {
     x: number;
     y: number;
-}, color: string, showTitles: boolean) => Canvas;
+}, color: string, showTitles: boolean) => HTMLCanvasElement;
 export default generateChart;
