@@ -1,0 +1,15 @@
+{
+  "name": "topster",
+  "version": "1.0.0",
+  "description": "Generate an HTML Canvas Topster chart",
+  "main": "./dist/topster.js",
+  "scripts": {
+    "build": "tsc",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Camden Mecklem",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^4.4.3"
+  }
+}
