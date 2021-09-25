@@ -1,9 +1,10 @@
-import { Canvas } from 'canvas'
+import { Canvas, Image, loadImage } from 'canvas'
 
 export interface ChartItem {
   title: string,
   creator?: string,
-  coverImg: HTMLImageElement
+  coverImg: HTMLImageElement,
+  coverURL: string
 }
 
 export interface ChartSize {
@@ -19,14 +20,102 @@ export interface Chart {
   showTitles: boolean
 }
 
-const generateChart = (
+const insertCoverImages = async (
+  canvas: Canvas,
+  items: ChartItem[],
+  cellSize: number,
+  dimensions: { x: number, y: number },
+  gap: number,
+  maxTitleWidth: number,
+  showTitles: boolean
+) => {
+  const ctx = canvas.getContext('2d')
+
+  if (!ctx) {
+    throw new Error('Canvas ctx not found')
+  }
+
+  const getScaledDimensions = (img: Image) => {
+    let differencePercentage = 1
+
+    if (img.width > cellSize && img.height > cellSize) {
+      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
+    } else if (img.width > cellSize) {
+      differencePercentage = cellSize / img.width
+    } else if (img.height > cellSize) {
+      differencePercentage = cellSize / img.height
+    } else if (img.width < cellSize && img.height < cellSize) {
+      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
+    }
+
+    return {
+      height: Math.floor(img.height * differencePercentage),
+      width: Math.floor(img.width * differencePercentage)
+    }
+  }
+
+  const findCenteringOffset = (dimension: number) => {
+    if (dimension < cellSize) {
+      return Math.floor((cellSize - dimension) / 2)
+    } else {
+      return 0
+    }
+  }
+
+  const insertImage = async (item: ChartItem, coords: { x: number, y: number }) => {
+    const cover = await loadImage(item.coverURL)
+
+    const dimensions = getScaledDimensions(cover)
+
+    ctx.drawImage(
+      cover,
+      ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width),
+      ((coords.y * cellSize) + 100 + (coords.y * gap)) + findCenteringOffset(dimensions.height),
+      dimensions.width,
+      dimensions.height
+    )
+  }
+
+  const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
+    const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
+    ctx.fillText(
+      titleString,
+      canvas.width - maxWidth,
+      (35 * index) + 130 + ((coords.y % (index + 1)) * 50)
+    )
+  }
+
+  for (const { item, index } of items.map((item, index) => ({ item, index }))) {
+    // Don't overflow outside the bounds of the chart
+    // This way, items will be saved if the chart is too big for them
+    // and the user can just expand the chart and they'll fill in again
+    if (index + 1 > dimensions.x * dimensions.y) {
+      return null
+    }
+
+    const coords = {
+      x: index % dimensions.x,
+      y: Math.floor(index / dimensions.x)
+    }
+
+    await insertImage(item, coords)
+
+    if (showTitles) {
+      ctx.font = '1.6rem monospace'
+      ctx.textAlign = 'left'
+      insertTitle(item, index, coords, maxTitleWidth)
+    }
+  }
+}
+
+const generateChart = async (
   canvas: Canvas,
   title: string,
   items: ChartItem[],
   chartSize: { x: number, y: number },
   color: string,
   showTitles: boolean
-): Canvas => {
+): Promise<Canvas> => {
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
@@ -83,94 +172,9 @@ const generateChart = (
 
   // gap between cells (pixels)
   const gap = 10
-  insertCoverImages(canvas, items, cellSize, chartSize, gap, maxTitleWidth, showTitles)
+  await insertCoverImages(canvas, items, cellSize, chartSize, gap, maxTitleWidth, showTitles)
 
   return canvas
-}
-
-const insertCoverImages = (
-  canvas: Canvas,
-  items: ChartItem[],
-  cellSize: number,
-  dimensions: { x: number, y: number },
-  gap: number,
-  maxTitleWidth: number,
-  showTitles: boolean
-) => {
-  const ctx = canvas.getContext('2d')
-
-  if (!ctx) {
-    throw new Error('Canvas ctx not found')
-  }
-
-  const getScaledDimensions = (img: HTMLImageElement) => {
-    let differencePercentage = 1
-
-    if (img.width > cellSize && img.height > cellSize) {
-      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
-    } else if (img.width > cellSize) {
-      differencePercentage = cellSize / img.width
-    } else if (img.height > cellSize) {
-      differencePercentage = cellSize / img.height
-    } else if (img.width < cellSize && img.height < cellSize) {
-      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
-    }
-
-    return {
-      height: Math.floor(img.height * differencePercentage),
-      width: Math.floor(img.width * differencePercentage)
-    }
-  }
-
-  const findCenteringOffset = (dimension: number) => {
-    if (dimension < cellSize) {
-      return Math.floor((cellSize - dimension) / 2)
-    } else {
-      return 0
-    }
-  }
-
-  const insertImage = (item: ChartItem, coords: { x: number, y: number }) => {
-    const dimensions = getScaledDimensions(item.coverImg)
-
-    ctx.drawImage(
-      item.coverImg,
-      ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width),
-      ((coords.y * cellSize) + 100 + (coords.y * gap)) + findCenteringOffset(dimensions.height),
-      dimensions.width,
-      dimensions.height
-    )
-  }
-
-  const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
-    const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
-    ctx.fillText(
-      titleString,
-      canvas.width - maxWidth,
-      (35 * index) + 130 + ((coords.y % (index + 1)) * 50)
-    )
-  }
-
-  items.forEach((item: ChartItem, index: number) => {
-    // Don't overflow outside the bounds of the chart
-    // This way, items will be saved if the chart is too big for them
-    // and the user can just expand the chart and they'll fill in again
-    if (index + 1 > dimensions.x * dimensions.y) {
-      return null
-    }
-
-    const coords = {
-      x: index % dimensions.x,
-      y: Math.floor(index / dimensions.x)
-    }
-
-    insertImage(item, coords)
-    if (showTitles) {
-      ctx.font = '1.6rem monospace'
-      ctx.textAlign = 'left'
-      insertTitle(item, index, coords, maxTitleWidth)
-    }
-  })
 }
 
 export default generateChart

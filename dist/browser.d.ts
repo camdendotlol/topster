@@ -2,6 +2,7 @@ export interface ChartItem {
     title: string;
     creator?: string;
     coverImg: HTMLImageElement;
+    coverURL: string;
 }
 export interface ChartSize {
     x: number;

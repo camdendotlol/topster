@@ -3,6 +3,7 @@ export interface ChartItem {
     title: string;
     creator?: string;
     coverImg: HTMLImageElement;
+    coverURL: string;
 }
 export interface ChartSize {
     x: number;
@@ -18,5 +19,5 @@ export interface Chart {
 declare const generateChart: (canvas: Canvas, title: string, items: ChartItem[], chartSize: {
     x: number;
     y: number;
-}, color: string, showTitles: boolean) => Canvas;
+}, color: string, showTitles: boolean) => Promise<Canvas>;
 export default generateChart;
