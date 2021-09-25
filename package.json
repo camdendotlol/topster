@@ -1,6 +1,6 @@
 {
   "name": "topster",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Generate an HTML Canvas Topster chart",
   "main": "./dist/topster.js",
   "scripts": {
