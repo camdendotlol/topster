@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const canvas_1 = require("canvas");
+(0, canvas_1.registerFont)('./dist/font/UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' });
 const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWidth, showTitles) => __awaiter(void 0, void 0, void 0, function* () {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -64,7 +65,7 @@ const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWid
         };
         yield insertImage(item, coords);
         if (showTitles) {
-            ctx.font = '1.6rem monospace';
+            ctx.font = '1.6rem Ubuntu Mono';
             ctx.textAlign = 'left';
             insertTitle(item, index, coords, maxTitleWidth);
         }
@@ -76,7 +77,7 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
         throw new Error('Missing canvas context.');
     }
     const getMaxTitleWidth = (ctx) => {
-        ctx.font = '19pt monospace';
+        ctx.font = '19pt Ubuntu Mono';
         let maxTitleWidth = 0;
         if (showTitles) {
             for (let x = 0; x < items.length; x++) {
@@ -104,7 +105,7 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
     ctx.beginPath();
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = 'bold 46pt monospace';
+    ctx.font = 'bold 46pt Ubuntu Mono';
     ctx.fillStyle = '#e9e9e9';
     ctx.textAlign = 'center';
     ctx.fillText(title, canvas.width / 2, 70);

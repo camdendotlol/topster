@@ -1,4 +1,4 @@
-import { Canvas, Image, loadImage } from 'canvas'
+import { Canvas, Image, loadImage, registerFont } from 'canvas'
 
 export interface ChartItem {
   title: string,
@@ -19,6 +19,8 @@ export interface Chart {
   color: string,
   showTitles: boolean
 }
+
+registerFont('./dist/font/UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' })
 
 const insertCoverImages = async (
   canvas: Canvas,
@@ -101,7 +103,7 @@ const insertCoverImages = async (
     await insertImage(item, coords)
 
     if (showTitles) {
-      ctx.font = '1.6rem monospace'
+      ctx.font = '1.6rem Ubuntu Mono'
       ctx.textAlign = 'left'
       insertTitle(item, index, coords, maxTitleWidth)
     }
@@ -123,7 +125,7 @@ const generateChart = async (
   }
 
   const getMaxTitleWidth = (ctx: CanvasRenderingContext2D) => {
-    ctx.font = '19pt monospace'
+    ctx.font = '19pt Ubuntu Mono'
     let maxTitleWidth = 0
 
     if (showTitles) {
@@ -160,7 +162,7 @@ const generateChart = async (
   ctx.fillStyle = color
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  ctx.font = 'bold 46pt monospace'
+  ctx.font = 'bold 46pt Ubuntu Mono'
   ctx.fillStyle = '#e9e9e9'
   ctx.textAlign = 'center'
   ctx.fillText(title, canvas.width / 2, 70)
