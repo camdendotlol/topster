@@ -1,3 +1,10 @@
+import {
+  getMaxTitleWidth,
+  getScaledDimensions,
+  drawCover,
+  setup
+} from "./common"
+
 export interface ChartItem {
   title: string,
   creator?: string,
@@ -18,43 +25,23 @@ export interface Chart {
   showTitles: boolean
 }
 
-const generateChart = (
-  canvas: HTMLCanvasElement,
-  title: string,
-  items: ChartItem[],
-  chartSize: { x: number, y: number },
-  color: string,
-  showTitles: boolean
-): HTMLCanvasElement => {
+const generateChart = (blankCanvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
+  const canvas = setup(blankCanvas, chart) as HTMLCanvasElement
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
     throw new Error('Missing canvas context.')
   }
 
-  const getMaxTitleWidth = () => {
-    let maxTitleWidth = 0
+  const maxTitleWidth = getMaxTitleWidth(chart)
 
-    if (showTitles) {
-      for (let x = 0; x < items.length; x++) {
-        const item = items[x]
-        const name = item.creator ? `${item.creator} - ${item.title}` : item.title
-        const width = name.length * 12
-        if (width > maxTitleWidth) {
-          maxTitleWidth = width
-        }
-      }
-    }
-
-    return maxTitleWidth
-  }
-
-  const maxTitleWidth = getMaxTitleWidth()
+  // gap between cells (pixels)
+  const gap = 10
 
   const pixelDimensions = {
     // room for each cell + 10px gap between cells + margins
-    x: (chartSize.x * 270) + 100 + maxTitleWidth,
-    y: (chartSize.y * 270) + 160
+    x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
+    y: (chart.size.y * (260 + gap)) + 160
   }
 
   canvas.width = pixelDimensions.x
@@ -65,78 +52,34 @@ const generateChart = (
   }
 
   ctx.beginPath()
-  ctx.fillStyle = color
+  ctx.fillStyle = chart.color
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
   ctx.font = '36pt "Ubuntu Mono"'
   ctx.fillStyle = '#e9e9e9'
   ctx.textAlign = 'center'
-  ctx.fillText(title, canvas.width / 2, 60)
+  ctx.fillText(chart.title, canvas.width / 2, 60)
 
   ctx.fillStyle = ('#e9e9e9')
 
   // height/width of each square cell
   const cellSize = 260
-
-  // gap between cells (pixels)
-  const gap = 10
-  insertCoverImages(canvas, items, cellSize, chartSize, gap, maxTitleWidth, showTitles)
+  insertCoverImages(canvas, chart, cellSize, gap, maxTitleWidth)
 
   return canvas
 }
 
 const insertCoverImages = (
   canvas: HTMLCanvasElement,
-  items: ChartItem[],
+  chart: Chart,
   cellSize: number,
-  dimensions: { x: number, y: number },
   gap: number,
-  maxTitleWidth: number,
-  showTitles: boolean
+  maxTitleWidth: number
 ) => {
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
     throw new Error('Canvas ctx not found')
-  }
-
-  const getScaledDimensions = (img: HTMLImageElement) => {
-    let differencePercentage = 1
-
-    if (img.width > cellSize && img.height > cellSize) {
-      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
-    } else if (img.width > cellSize) {
-      differencePercentage = cellSize / img.width
-    } else if (img.height > cellSize) {
-      differencePercentage = cellSize / img.height
-    } else if (img.width < cellSize && img.height < cellSize) {
-      differencePercentage = Math.min((cellSize / img.width), (cellSize / img.height))
-    }
-
-    return {
-      height: Math.floor(img.height * differencePercentage),
-      width: Math.floor(img.width * differencePercentage)
-    }
-  }
-
-  const findCenteringOffset = (dimension: number) => {
-    if (dimension < cellSize) {
-      return Math.floor((cellSize - dimension) / 2)
-    } else {
-      return 0
-    }
-  }
-
-  const insertImage = (item: ChartItem, coords: { x: number, y: number }) => {
-    const dimensions = getScaledDimensions(item.coverImg)
-
-    ctx.drawImage(
-      item.coverImg,
-      ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width),
-      ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height),
-      dimensions.width,
-      dimensions.height
-    )
   }
 
   const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
@@ -148,26 +91,45 @@ const insertCoverImages = (
     )
   }
 
-  items.forEach((item: ChartItem, index: number) => {
+  chart.items.forEach((item: ChartItem, index: number) => {
     // Don't overflow outside the bounds of the chart
     // This way, items will be saved if the chart is too big for them
     // and the user can just expand the chart and they'll fill in again
-    if (index + 1 > dimensions.x * dimensions.y) {
+    if (index + 1 > chart.size.x * chart.size.y) {
       return null
     }
 
     const coords = {
-      x: index % dimensions.x,
-      y: Math.floor(index / dimensions.x)
+      x: index % chart.size.x,
+      y: Math.floor(index / chart.size.x)
     }
 
-    insertImage(item, coords)
-    if (showTitles) {
+    insertImage(item, coords, cellSize, gap, ctx)
+    if (chart.showTitles) {
       ctx.font = '16pt "Ubuntu Mono"'
       ctx.textAlign = 'left'
       insertTitle(item, index, coords, maxTitleWidth)
     }
   })
+}
+
+const insertImage = (
+  item: ChartItem,
+  coords: { x: number, y: number },
+  cellSize: number,
+  gap: number,
+  ctx: CanvasRenderingContext2D
+) => {
+  const dimensions = getScaledDimensions(item.coverImg, cellSize)
+
+  drawCover(
+    item.coverImg,
+    coords,
+    cellSize,
+    gap,
+    dimensions,
+    ctx
+  )
 }
 
 export default generateChart
