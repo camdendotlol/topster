@@ -20,7 +20,7 @@ export interface Chart {
   showTitles: boolean
 }
 
-registerFont('./dist/font/UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' })
+registerFont('UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' })
 
 const insertCoverImages = async (
   canvas: Canvas,

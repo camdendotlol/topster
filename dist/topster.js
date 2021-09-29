@@ -10,7 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const canvas_1 = require("canvas");
-(0, canvas_1.registerFont)('./dist/font/UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' });
+(0, canvas_1.registerFont)('@topster/dist/UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' });
 const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWidth, showTitles) => __awaiter(void 0, void 0, void 0, function* () {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
