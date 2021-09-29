@@ -1,6 +1,6 @@
 {
   "name": "topster",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Generate an HTML Canvas Topster chart",
   "author": "Camden Mecklem",
   "license": "MIT",
@@ -17,6 +17,7 @@
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
+    "@types/node": "^16.10.2",
     "canvas": "^2.8.0",
     "typescript": "^4.4.3"
   }

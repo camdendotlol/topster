@@ -50,11 +50,6 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth) => __awa
     }
 });
 const generateChart = (blankCanvas, chart) => __awaiter(void 0, void 0, void 0, function* () {
-    const canvas = (0, common_1.setup)(blankCanvas, chart);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        throw new Error('Missing canvas context.');
-    }
     const maxTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
     // gap between cells (pixels)
     const gap = 10;
@@ -63,8 +58,13 @@ const generateChart = (blankCanvas, chart) => __awaiter(void 0, void 0, void 0, 
         x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
         y: (chart.size.y * (260 + gap)) + 160
     };
-    canvas.width = pixelDimensions.x;
-    canvas.height = pixelDimensions.y;
+    blankCanvas.width = pixelDimensions.x;
+    blankCanvas.height = pixelDimensions.y;
+    const canvas = (0, common_1.setup)(blankCanvas, chart);
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+        throw new Error('Missing canvas context.');
+    }
     ctx.fillStyle = ('#e9e9e9');
     // height/width of each square cell
     const cellSize = 260;

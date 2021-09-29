@@ -20,13 +20,6 @@ const generateChart = (blankCanvas, chart) => {
     if (!ctx) {
         throw new Error('Canvas ctx not found');
     }
-    ctx.beginPath();
-    ctx.fillStyle = chart.color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = '36pt "Ubuntu Mono"';
-    ctx.fillStyle = '#e9e9e9';
-    ctx.textAlign = 'center';
-    ctx.fillText(chart.title, canvas.width / 2, 60);
     ctx.fillStyle = ('#e9e9e9');
     // height/width of each square cell
     const cellSize = 260;

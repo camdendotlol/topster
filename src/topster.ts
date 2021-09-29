@@ -94,13 +94,6 @@ const generateChart = async (
   blankCanvas: Canvas,
   chart: Chart,
 ): Promise<Canvas> => {
-  const canvas = setup(blankCanvas, chart) as Canvas
-
-  const ctx = canvas.getContext('2d')
-  if (!ctx) {
-    throw new Error('Missing canvas context.')
-  }
-
   const maxTitleWidth = getMaxTitleWidth(chart)
   // gap between cells (pixels)
   const gap = 10
@@ -111,8 +104,15 @@ const generateChart = async (
     y: (chart.size.y * (260 + gap)) + 160
   }
 
-  canvas.width = pixelDimensions.x
-  canvas.height = pixelDimensions.y
+  blankCanvas.width = pixelDimensions.x
+  blankCanvas.height = pixelDimensions.y
+
+  const canvas = setup(blankCanvas, chart) as Canvas
+
+  const ctx = canvas.getContext('2d')
+  if (!ctx) {
+    throw new Error('Missing canvas context.')
+  }
 
   ctx.fillStyle = ('#e9e9e9')
 
