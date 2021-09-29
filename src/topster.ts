@@ -21,7 +21,7 @@ export interface Chart {
   showTitles: boolean
 }
 
-registerFont(path.join(__dirname, 'node_modules', 'topster', 'dist', 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
+registerFont(path.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
 
 const insertCoverImages = async (
   canvas: Canvas,
