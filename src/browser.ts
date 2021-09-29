@@ -32,16 +32,16 @@ const generateChart = (
     throw new Error('Missing canvas context.')
   }
 
-  const getMaxTitleWidth = (ctx: CanvasRenderingContext2D) => {
-    ctx.font = '19pt monospace'
+  const getMaxTitleWidth = () => {
     let maxTitleWidth = 0
 
     if (showTitles) {
       for (let x = 0; x < items.length; x++) {
         const item = items[x]
         const name = item.creator ? `${item.creator} - ${item.title}` : item.title
-        if (maxTitleWidth < ctx.measureText(name).width) {
-          maxTitleWidth = ctx.measureText(name).width + 50
+        const width = name.length * 12
+        if (width > maxTitleWidth) {
+          maxTitleWidth = width
         }
       }
     }
@@ -49,14 +49,12 @@ const generateChart = (
     return maxTitleWidth
   }
 
-  const maxTitleWidth = getMaxTitleWidth(ctx)
-
-  const topMargin = title === '' ? 100 : 180
+  const maxTitleWidth = getMaxTitleWidth()
 
   const pixelDimensions = {
     // room for each cell + 10px gap between cells + margins
     x: (chartSize.x * 270) + 100 + maxTitleWidth,
-    y: (chartSize.y * 270) + topMargin
+    y: (chartSize.y * 270) + 160
   }
 
   canvas.width = pixelDimensions.x
@@ -70,10 +68,10 @@ const generateChart = (
   ctx.fillStyle = color
   ctx.fillRect(0, 0, canvas.width, canvas.height)
 
-  ctx.font = 'bold 46pt monospace'
+  ctx.font = '36pt "Ubuntu Mono"'
   ctx.fillStyle = '#e9e9e9'
   ctx.textAlign = 'center'
-  ctx.fillText(title, canvas.width / 2, 70)
+  ctx.fillText(title, canvas.width / 2, 60)
 
   ctx.fillStyle = ('#e9e9e9')
 
@@ -135,7 +133,7 @@ const insertCoverImages = (
     ctx.drawImage(
       item.coverImg,
       ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width),
-      ((coords.y * cellSize) + 100 + (coords.y * gap)) + findCenteringOffset(dimensions.height),
+      ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height),
       dimensions.width,
       dimensions.height
     )
@@ -146,7 +144,7 @@ const insertCoverImages = (
     ctx.fillText(
       titleString,
       canvas.width - maxWidth,
-      (35 * index) + 130 + ((coords.y % (index + 1)) * 50)
+      (25 * index) + 110 + ((coords.y % (index + 1)) * 50)
     )
   }
 
@@ -165,7 +163,7 @@ const insertCoverImages = (
 
     insertImage(item, coords)
     if (showTitles) {
-      ctx.font = '1.6rem monospace'
+      ctx.font = '16pt "Ubuntu Mono"'
       ctx.textAlign = 'left'
       insertTitle(item, index, coords, maxTitleWidth)
     }
