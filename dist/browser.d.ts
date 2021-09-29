@@ -15,8 +15,5 @@ export interface Chart {
     color: string;
     showTitles: boolean;
 }
-declare const generateChart: (canvas: HTMLCanvasElement, title: string, items: ChartItem[], chartSize: {
-    x: number;
-    y: number;
-}, color: string, showTitles: boolean) => HTMLCanvasElement;
+declare const generateChart: (blankCanvas: HTMLCanvasElement, chart: Chart) => HTMLCanvasElement;
 export default generateChart;

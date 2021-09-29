@@ -16,8 +16,5 @@ export interface Chart {
     color: string;
     showTitles: boolean;
 }
-declare const generateChart: (canvas: Canvas, title: string, items: ChartItem[], chartSize: {
-    x: number;
-    y: number;
-}, color: string, showTitles: boolean) => Promise<Canvas>;
+declare const generateChart: (blankCanvas: Canvas, chart: Chart) => Promise<Canvas>;
 export default generateChart;
