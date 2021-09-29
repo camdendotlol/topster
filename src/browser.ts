@@ -25,18 +25,10 @@ export interface Chart {
   showTitles: boolean
 }
 
-const generateChart = (blankCanvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
-  const canvas = setup(blankCanvas, chart) as HTMLCanvasElement
-  const ctx = canvas.getContext('2d')
-
-  if (!ctx) {
-    throw new Error('Missing canvas context.')
-  }
-
-  const maxTitleWidth = getMaxTitleWidth(chart)
-
+const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
   // gap between cells (pixels)
   const gap = 10
+  const maxTitleWidth = getMaxTitleWidth(chart)
 
   const pixelDimensions = {
     // room for each cell + 10px gap between cells + margins
@@ -47,14 +39,19 @@ const generateChart = (blankCanvas: HTMLCanvasElement, chart: Chart): HTMLCanvas
   canvas.width = pixelDimensions.x
   canvas.height = pixelDimensions.y
 
+  setup(canvas, chart)
+
+  const ctx = canvas.getContext('2d')
+
   if (!ctx) {
-    throw new Error('Canvas ctx not found')
+    throw new Error('Missing canvas context.')
   }
 
   ctx.fillStyle = ('#e9e9e9')
 
   // height/width of each square cell
   const cellSize = 260
+
   insertCoverImages(canvas, chart, cellSize, gap, maxTitleWidth)
 
   return canvas

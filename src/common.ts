@@ -1,6 +1,9 @@
 import { Canvas, Image, NodeCanvasRenderingContext2D } from 'canvas'
-import { Chart, ChartItem } from './topster'
+import { Chart } from './topster'
 
+
+// The sidebar containing the titles of chart items should only be as
+// wide as the longest title, plus a little bit of margin.
 export const getMaxTitleWidth = (chart: Chart) => {
   let maxTitleWidth = 0
 
@@ -8,11 +11,11 @@ export const getMaxTitleWidth = (chart: Chart) => {
     for (let x = 0; x < chart.items.length; x++) {
       const item = chart.items[x]
       const name = item.creator ? `${item.creator} - ${item.title}` : item.title
-        // node-canvas's measureText method is broken
-        // so we need to use this weird hardcoded method
-        // each pixel of 14px Ubuntu Mono is roughly 18px wide
-        // this could use some improvement but it keeps the text from getting cut off
-        // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
+      // node-canvas's measureText method is broken
+      // so we need to use this weird hardcoded method
+      // each pixel of 14px Ubuntu Mono is roughly 18px wide
+      // this could use some improvement but it keeps the text from getting cut off
+      // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
       const width = name.length * 12
       if (width > maxTitleWidth) {
         maxTitleWidth = width
@@ -23,6 +26,8 @@ export const getMaxTitleWidth = (chart: Chart) => {
   return maxTitleWidth
 }
 
+// Finds how many pixels the horizontal and/or vertical margin should be
+// in order to center the cover within its cell.
 const findCenteringOffset = (dimension: number, cellSize: number) => {
   if (dimension < cellSize) {
     return Math.floor((cellSize - dimension) / 2)
@@ -71,6 +76,8 @@ export const drawCover = (
   )
 }
 
+// Initial setup for the chart.
+// Fills in the background, adds title, etc.
 export const setup = (
   canvas: Canvas | HTMLCanvasElement,
   chart: Chart
@@ -91,5 +98,4 @@ export const setup = (
   tsCompatCtx.fillStyle = '#e9e9e9'
   tsCompatCtx.textAlign = 'center'
   tsCompatCtx.fillText(chart.title, canvas.width / 2, 60)
-  return canvas
 }
