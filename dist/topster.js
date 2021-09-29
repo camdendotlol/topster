@@ -50,11 +50,11 @@ const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWid
     const insertImage = (item, coords) => __awaiter(void 0, void 0, void 0, function* () {
         const cover = yield (0, canvas_1.loadImage)(item.coverURL);
         const dimensions = getScaledDimensions(cover);
-        ctx.drawImage(cover, ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width), ((coords.y * cellSize) + 100 + (coords.y * gap)) + findCenteringOffset(dimensions.height), dimensions.width, dimensions.height);
+        ctx.drawImage(cover, ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width), ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height), dimensions.width, dimensions.height);
     });
     const insertTitle = (item, index, coords, maxWidth) => {
         const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title;
-        ctx.fillText(titleString, canvas.width - maxWidth, (35 * index) + 130 + ((coords.y % (index + 1)) * 50));
+        ctx.fillText(titleString, canvas.width - maxWidth, (25 * index) + 110 + ((coords.y % (index + 1)) * 50));
     };
     for (const { item, index } of items.map((item, index) => ({ item, index }))) {
         // Don't overflow outside the bounds of the chart
@@ -69,7 +69,7 @@ const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWid
         };
         yield insertImage(item, coords);
         if (showTitles) {
-            ctx.font = '1.6rem Ubuntu Mono';
+            ctx.font = '16pt "Ubuntu Mono"';
             ctx.textAlign = 'left';
             insertTitle(item, index, coords, maxTitleWidth);
         }
@@ -80,8 +80,7 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
     if (!ctx) {
         throw new Error('Missing canvas context.');
     }
-    const getMaxTitleWidth = (ctx) => {
-        ctx.font = '14px Ubuntu Mono';
+    const getMaxTitleWidth = () => {
         let maxTitleWidth = 0;
         if (showTitles) {
             for (let x = 0; x < items.length; x++) {
@@ -92,7 +91,7 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
                 // each pixel of 14px Ubuntu Mono is roughly 18px wide
                 // this could use some improvement but it keeps the text from getting cut off
                 // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-                const width = Math.floor(name.length * 18);
+                const width = name.length * 12;
                 if (width > maxTitleWidth) {
                     maxTitleWidth = width;
                 }
@@ -100,12 +99,11 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
         }
         return maxTitleWidth;
     };
-    const maxTitleWidth = getMaxTitleWidth(ctx);
-    const topMargin = title === '' ? 100 : 180;
+    const maxTitleWidth = getMaxTitleWidth();
     const pixelDimensions = {
         // room for each cell + 10px gap between cells + margins
         x: (chartSize.x * 270) + 100 + maxTitleWidth,
-        y: (chartSize.y * 270) + topMargin
+        y: (chartSize.y * 270) + 160
     };
     canvas.width = pixelDimensions.x;
     canvas.height = pixelDimensions.y;
@@ -115,10 +113,10 @@ const generateChart = (canvas, title, items, chartSize, color, showTitles) => __
     ctx.beginPath();
     ctx.fillStyle = color;
     ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.font = 'bold 46pt Ubuntu Mono';
+    ctx.font = '36pt "Ubuntu Mono"';
     ctx.fillStyle = '#e9e9e9';
     ctx.textAlign = 'center';
-    ctx.fillText(title, canvas.width / 2, 70);
+    ctx.fillText(title, canvas.width / 2, 60);
     ctx.fillStyle = ('#e9e9e9');
     // height/width of each square cell
     const cellSize = 260;
