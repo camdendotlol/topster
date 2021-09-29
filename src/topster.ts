@@ -1,4 +1,5 @@
 import { Canvas, Image, loadImage, registerFont } from 'canvas'
+import path from 'path'
 
 export interface ChartItem {
   title: string,
@@ -20,7 +21,7 @@ export interface Chart {
   showTitles: boolean
 }
 
-registerFont('UbuntuMono-Regular.ttf', { family: 'Ubuntu Mono' })
+registerFont(path.join(__dirname, 'node-modules', 'topster', 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
 
 const insertCoverImages = async (
   canvas: Canvas,
