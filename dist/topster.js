@@ -14,7 +14,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 Object.defineProperty(exports, "__esModule", { value: true });
 const canvas_1 = require("canvas");
 const path_1 = __importDefault(require("path"));
-(0, canvas_1.registerFont)(path_1.default.join(__dirname, 'node_modules', 'topster', 'dist', 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' });
+(0, canvas_1.registerFont)(path_1.default.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' });
 const insertCoverImages = (canvas, items, cellSize, dimensions, gap, maxTitleWidth, showTitles) => __awaiter(void 0, void 0, void 0, function* () {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
