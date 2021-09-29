@@ -12,4 +12,4 @@ export declare const drawCover: (cover: Image | HTMLImageElement, coords: {
     height: number;
     width: number;
 }, ctx: CanvasRenderingContext2D | NodeCanvasRenderingContext2D) => void;
-export declare const setup: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => HTMLCanvasElement | Canvas;
+export declare const setup: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;

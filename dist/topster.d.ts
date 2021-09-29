@@ -16,5 +16,5 @@ export interface Chart {
     color: string;
     showTitles: boolean;
 }
-declare const generateChart: (blankCanvas: Canvas, chart: Chart) => Promise<Canvas>;
+declare const generateChart: (canvas: Canvas, chart: Chart) => Promise<Canvas>;
 export default generateChart;

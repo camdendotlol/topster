@@ -1,15 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
-const generateChart = (blankCanvas, chart) => {
-    const canvas = (0, common_1.setup)(blankCanvas, chart);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        throw new Error('Missing canvas context.');
-    }
-    const maxTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
+const generateChart = (canvas, chart) => {
     // gap between cells (pixels)
     const gap = 10;
+    const maxTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
     const pixelDimensions = {
         // room for each cell + 10px gap between cells + margins
         x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
@@ -17,8 +12,10 @@ const generateChart = (blankCanvas, chart) => {
     };
     canvas.width = pixelDimensions.x;
     canvas.height = pixelDimensions.y;
+    (0, common_1.setup)(canvas, chart);
+    const ctx = canvas.getContext('2d');
     if (!ctx) {
-        throw new Error('Canvas ctx not found');
+        throw new Error('Missing canvas context.');
     }
     ctx.fillStyle = ('#e9e9e9');
     // height/width of each square cell

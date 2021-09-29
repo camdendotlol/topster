@@ -1,6 +1,8 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.setup = exports.drawCover = exports.getScaledDimensions = exports.getMaxTitleWidth = void 0;
+// The sidebar containing the titles of chart items should only be as
+// wide as the longest title, plus a little bit of margin.
 const getMaxTitleWidth = (chart) => {
     let maxTitleWidth = 0;
     if (chart.showTitles) {
@@ -21,6 +23,8 @@ const getMaxTitleWidth = (chart) => {
     return maxTitleWidth;
 };
 exports.getMaxTitleWidth = getMaxTitleWidth;
+// Finds how many pixels the horizontal and/or vertical margin should be
+// in order to center the cover within its cell.
 const findCenteringOffset = (dimension, cellSize) => {
     if (dimension < cellSize) {
         return Math.floor((cellSize - dimension) / 2);
@@ -57,6 +61,8 @@ const drawCover = (cover, coords, cellSize, gap, dimensions, ctx) => {
     cover, ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width, cellSize), ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height, cellSize), dimensions.width, dimensions.height);
 };
 exports.drawCover = drawCover;
+// Initial setup for the chart.
+// Fills in the background, adds title, etc.
 const setup = (canvas, chart) => {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
@@ -70,6 +76,5 @@ const setup = (canvas, chart) => {
     tsCompatCtx.fillStyle = '#e9e9e9';
     tsCompatCtx.textAlign = 'center';
     tsCompatCtx.fillText(chart.title, canvas.width / 2, 60);
-    return canvas;
 };
 exports.setup = setup;
