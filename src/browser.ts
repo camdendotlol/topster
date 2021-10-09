@@ -3,7 +3,7 @@ import {
   getScaledDimensions,
   drawCover,
   setup
-} from "./common"
+} from './common'
 
 export interface ChartItem {
   title: string,
@@ -22,18 +22,24 @@ export interface Chart {
   items: ChartItem[],
   size: ChartSize,
   color: string,
-  showTitles: boolean
+  showTitles: boolean,
+  gap: number
 }
 
 const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
   // gap between cells (pixels)
-  const gap = 10
-  const maxTitleWidth = getMaxTitleWidth(chart)
+  const gap = chart.gap
+  const maxItemTitleWidth = getMaxTitleWidth(chart)
+
+  // height/width of each square cell
+  const cellSize = 260
+
+  const chartTitleMargin = chart.title === '' ? 0 : 60
 
   const pixelDimensions = {
-    // room for each cell + 10px gap between cells + margins
-    x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
-    y: (chart.size.y * (260 + gap)) + 160
+    // room for each cell + gap between cells + margins
+    x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
+    y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
   }
 
   canvas.width = pixelDimensions.x
@@ -49,10 +55,7 @@ const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasEleme
 
   ctx.fillStyle = ('#e9e9e9')
 
-  // height/width of each square cell
-  const cellSize = 260
-
-  insertCoverImages(canvas, chart, cellSize, gap, maxTitleWidth)
+  insertCoverImages(canvas, chart, cellSize, gap, maxItemTitleWidth, chartTitleMargin)
 
   return canvas
 }
@@ -62,7 +65,8 @@ const insertCoverImages = (
   chart: Chart,
   cellSize: number,
   gap: number,
-  maxTitleWidth: number
+  maxTitleWidth: number,
+  chartTitleMargin: number
 ) => {
   const ctx = canvas.getContext('2d')
 
@@ -74,8 +78,8 @@ const insertCoverImages = (
     const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
     ctx.fillText(
       titleString,
-      canvas.width - maxWidth,
-      (25 * index) + 110 + ((coords.y % (index + 1)) * 50)
+      canvas.width - maxWidth + 10,
+      (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin
     )
   }
 
@@ -88,11 +92,11 @@ const insertCoverImages = (
     }
 
     const coords = {
-      x: index % chart.size.x,
+      x: (index % chart.size.x),
       y: Math.floor(index / chart.size.x)
     }
 
-    insertImage(item, coords, cellSize, gap, ctx)
+    insertImage(item, coords, cellSize, gap, ctx, chartTitleMargin)
     if (chart.showTitles) {
       ctx.font = '16pt "Ubuntu Mono"'
       ctx.textAlign = 'left'
@@ -106,7 +110,8 @@ const insertImage = (
   coords: { x: number, y: number },
   cellSize: number,
   gap: number,
-  ctx: CanvasRenderingContext2D
+  ctx: CanvasRenderingContext2D,
+  chartTitleMargin: number
 ) => {
   const dimensions = getScaledDimensions(item.coverImg, cellSize)
 
@@ -116,7 +121,8 @@ const insertImage = (
     cellSize,
     gap,
     dimensions,
-    ctx
+    ctx,
+    chartTitleMargin
   )
 }
 

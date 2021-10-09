@@ -25,7 +25,8 @@ export interface Chart {
   items: ChartItem[],
   size: ChartSize,
   color: string,
-  showTitles: boolean
+  showTitles: boolean,
+  gap: number
 }
 
 registerFont(path.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
@@ -35,7 +36,8 @@ const insertCoverImages = async (
   chart: Chart,
   cellSize: number,
   gap: number,
-  maxTitleWidth: number
+  maxTitleWidth: number,
+  chartTitleMargin: number
 ) => {
   const ctx = canvas.getContext('2d')
 
@@ -43,7 +45,10 @@ const insertCoverImages = async (
     throw new Error('Canvas ctx not found')
   }
 
-  const insertImage = async (item: ChartItem, coords: { x: number, y: number }) => {
+  const insertImage = async (
+    item: ChartItem,
+    coords: { x: number, y: number }
+  ) => {
     const cover = await loadImage(item.coverURL)
 
     const dimensions = getScaledDimensions(cover, cellSize)
@@ -54,7 +59,8 @@ const insertCoverImages = async (
       cellSize,
       gap,
       dimensions,
-      ctx
+      ctx,
+      chartTitleMargin
     )
   }
 
@@ -62,8 +68,8 @@ const insertCoverImages = async (
     const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
     ctx.fillText(
       titleString,
-      canvas.width - maxWidth,
-      (25 * index) + 110 + ((coords.y % (index + 1)) * 50)
+      canvas.width - maxWidth + 10,
+      (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin
     )
   }
 
@@ -95,13 +101,18 @@ const generateChart = async (
   chart: Chart,
 ): Promise<Canvas> => {
   // gap between cells (pixels)
-  const gap = 10
-  const maxTitleWidth = getMaxTitleWidth(chart)
+  const gap = chart.gap
+  const maxItemTitleWidth = getMaxTitleWidth(chart)
+
+  // height/width of each square cell
+  const cellSize = 260
+
+  const chartTitleMargin = chart.title === '' ? 0 : 60
 
   const pixelDimensions = {
     // room for each cell + 10px gap between cells + margins
-    x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
-    y: (chart.size.y * (260 + gap)) + 160
+    x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
+    y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
   }
 
   canvas.width = pixelDimensions.x
@@ -117,10 +128,7 @@ const generateChart = async (
 
   ctx.fillStyle = ('#e9e9e9')
 
-  // height/width of each square cell
-  const cellSize = 260
-
-  await insertCoverImages(canvas, chart, cellSize, gap, maxTitleWidth)
+  await insertCoverImages(canvas, chart, cellSize, gap, maxItemTitleWidth, chartTitleMargin)
 
   return canvas
 }

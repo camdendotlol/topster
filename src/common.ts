@@ -1,10 +1,9 @@
 import { Canvas, Image, NodeCanvasRenderingContext2D } from 'canvas'
-import { Chart } from './topster'
-
+import { Chart } from './browser'
 
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-export const getMaxTitleWidth = (chart: Chart) => {
+export const getMaxTitleWidth = (chart: Chart): number => {
   let maxTitleWidth = 0
 
   if (chart.showTitles) {
@@ -13,10 +12,10 @@ export const getMaxTitleWidth = (chart: Chart) => {
       const name = item.creator ? `${item.creator} - ${item.title}` : item.title
       // node-canvas's measureText method is broken
       // so we need to use this weird hardcoded method
-      // each pixel of 14px Ubuntu Mono is roughly 18px wide
+      // each pixel of 14px Ubuntu Mono is roughly 11px wide
       // this could use some improvement but it keeps the text from getting cut off
       // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-      const width = name.length * 12
+      const width = (name.length * 11) + chart.gap + 10
       if (width > maxTitleWidth) {
         maxTitleWidth = width
       }
@@ -36,7 +35,7 @@ const findCenteringOffset = (dimension: number, cellSize: number) => {
   }
 }
 
-export const getScaledDimensions = (img: Image | HTMLImageElement, cellSize: number) => {
+export const getScaledDimensions = (img: HTMLImageElement | Image, cellSize: number): { height: number, width: number } => {
   let differencePercentage = 1
 
   if (img.width > cellSize && img.height > cellSize) {
@@ -61,16 +60,16 @@ export const drawCover = (
   cellSize: number,
   gap: number,
   dimensions: { height: number, width: number },
-  ctx: CanvasRenderingContext2D | NodeCanvasRenderingContext2D
-) => {
-
+  ctx: CanvasRenderingContext2D | NodeCanvasRenderingContext2D,
+  chartTitleMargin: number
+): void => {
   ctx.drawImage(
     // Lying to TS here!
     // Node-canvas and HTML Canvas have different sets of CTX & Image types.
     // TS doesn't know we've ensured that this is always called with compatible types.
     cover as HTMLImageElement,
-    ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width, cellSize),
-    ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height, cellSize),
+    (coords.x * (cellSize + gap)) + gap + findCenteringOffset(dimensions.width, cellSize),
+    (coords.y * (cellSize + gap)) + gap + findCenteringOffset(dimensions.height, cellSize) + chartTitleMargin,
     dimensions.width,
     dimensions.height
   )
@@ -81,7 +80,7 @@ export const drawCover = (
 export const setup = (
   canvas: Canvas | HTMLCanvasElement,
   chart: Chart
-) => {
+): void => {
   const ctx = canvas.getContext('2d')
 
   if (!ctx) {
@@ -94,8 +93,8 @@ export const setup = (
   tsCompatCtx.fillStyle = chart.color
   tsCompatCtx.fillRect(0, 0, canvas.width, canvas.height)
 
-  tsCompatCtx.font = '36pt "Ubuntu Mono"'
+  tsCompatCtx.font = '38pt "Ubuntu Mono"'
   tsCompatCtx.fillStyle = '#e9e9e9'
   tsCompatCtx.textAlign = 'center'
-  tsCompatCtx.fillText(chart.title, canvas.width / 2, 60)
+  tsCompatCtx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
 }

@@ -11,10 +11,10 @@ const getMaxTitleWidth = (chart) => {
             const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
             // node-canvas's measureText method is broken
             // so we need to use this weird hardcoded method
-            // each pixel of 14px Ubuntu Mono is roughly 18px wide
+            // each pixel of 14px Ubuntu Mono is roughly 11px wide
             // this could use some improvement but it keeps the text from getting cut off
             // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-            const width = name.length * 12;
+            const width = (name.length * 11) + chart.gap + 10;
             if (width > maxTitleWidth) {
                 maxTitleWidth = width;
             }
@@ -53,12 +53,12 @@ const getScaledDimensions = (img, cellSize) => {
     };
 };
 exports.getScaledDimensions = getScaledDimensions;
-const drawCover = (cover, coords, cellSize, gap, dimensions, ctx) => {
+const drawCover = (cover, coords, cellSize, gap, dimensions, ctx, chartTitleMargin) => {
     ctx.drawImage(
     // Lying to TS here!
     // Node-canvas and HTML Canvas have different sets of CTX & Image types.
     // TS doesn't know we've ensured that this is always called with compatible types.
-    cover, ((coords.x * cellSize) + 55 + (coords.x * gap)) + findCenteringOffset(dimensions.width, cellSize), ((coords.y * cellSize) + 80 + (coords.y * gap)) + findCenteringOffset(dimensions.height, cellSize), dimensions.width, dimensions.height);
+    cover, (coords.x * (cellSize + gap)) + gap + findCenteringOffset(dimensions.width, cellSize), (coords.y * (cellSize + gap)) + gap + findCenteringOffset(dimensions.height, cellSize) + chartTitleMargin, dimensions.width, dimensions.height);
 };
 exports.drawCover = drawCover;
 // Initial setup for the chart.
@@ -72,9 +72,9 @@ const setup = (canvas, chart) => {
     tsCompatCtx.beginPath();
     tsCompatCtx.fillStyle = chart.color;
     tsCompatCtx.fillRect(0, 0, canvas.width, canvas.height);
-    tsCompatCtx.font = '36pt "Ubuntu Mono"';
+    tsCompatCtx.font = '38pt "Ubuntu Mono"';
     tsCompatCtx.fillStyle = '#e9e9e9';
     tsCompatCtx.textAlign = 'center';
-    tsCompatCtx.fillText(chart.title, canvas.width / 2, 60);
+    tsCompatCtx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2));
 };
 exports.setup = setup;

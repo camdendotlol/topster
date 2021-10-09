@@ -16,7 +16,7 @@ const canvas_1 = require("canvas");
 const path_1 = __importDefault(require("path"));
 const common_1 = require("./common");
 (0, canvas_1.registerFont)(path_1.default.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' });
-const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth) => __awaiter(void 0, void 0, void 0, function* () {
+const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTitleMargin) => __awaiter(void 0, void 0, void 0, function* () {
     const ctx = canvas.getContext('2d');
     if (!ctx) {
         throw new Error('Canvas ctx not found');
@@ -24,11 +24,11 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth) => __awa
     const insertImage = (item, coords) => __awaiter(void 0, void 0, void 0, function* () {
         const cover = yield (0, canvas_1.loadImage)(item.coverURL);
         const dimensions = (0, common_1.getScaledDimensions)(cover, cellSize);
-        (0, common_1.drawCover)(cover, coords, cellSize, gap, dimensions, ctx);
+        (0, common_1.drawCover)(cover, coords, cellSize, gap, dimensions, ctx, chartTitleMargin);
     });
     const insertTitle = (item, index, coords, maxWidth) => {
         const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title;
-        ctx.fillText(titleString, canvas.width - maxWidth, (25 * index) + 110 + ((coords.y % (index + 1)) * 50));
+        ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
     for (const { item, index } of chart.items.map((item, index) => ({ item, index }))) {
         // Don't overflow outside the bounds of the chart
@@ -51,12 +51,15 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth) => __awa
 });
 const generateChart = (canvas, chart) => __awaiter(void 0, void 0, void 0, function* () {
     // gap between cells (pixels)
-    const gap = 10;
-    const maxTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
+    const gap = chart.gap;
+    const maxItemTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
+    // height/width of each square cell
+    const cellSize = 260;
+    const chartTitleMargin = chart.title === '' ? 0 : 60;
     const pixelDimensions = {
         // room for each cell + 10px gap between cells + margins
-        x: (chart.size.x * (260 + gap)) + 100 + maxTitleWidth,
-        y: (chart.size.y * (260 + gap)) + 160
+        x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
+        y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
     };
     canvas.width = pixelDimensions.x;
     canvas.height = pixelDimensions.y;
@@ -66,9 +69,7 @@ const generateChart = (canvas, chart) => __awaiter(void 0, void 0, void 0, funct
         throw new Error('Missing canvas context.');
     }
     ctx.fillStyle = ('#e9e9e9');
-    // height/width of each square cell
-    const cellSize = 260;
-    yield insertCoverImages(canvas, chart, cellSize, gap, maxTitleWidth);
+    yield insertCoverImages(canvas, chart, cellSize, gap, maxItemTitleWidth, chartTitleMargin);
     return canvas;
 });
 exports.default = generateChart;

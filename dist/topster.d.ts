@@ -15,6 +15,7 @@ export interface Chart {
     size: ChartSize;
     color: string;
     showTitles: boolean;
+    gap: number;
 }
 declare const generateChart: (canvas: Canvas, chart: Chart) => Promise<Canvas>;
 export default generateChart;
