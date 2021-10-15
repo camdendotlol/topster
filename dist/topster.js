@@ -31,6 +31,10 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
     for (const { item, index } of chart.items.map((item, index) => ({ item, index }))) {
+        // If a cell is null, that means it's empty, so we can pass over it.
+        if (!item) {
+            return null;
+        }
         // Don't overflow outside the bounds of the chart
         // This way, items will be saved if the chart is too big for them
         // and the user can just expand the chart and they'll fill in again

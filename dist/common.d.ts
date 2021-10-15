@@ -1,5 +1,22 @@
 import { Canvas, Image, NodeCanvasRenderingContext2D } from 'canvas';
-import { Chart } from './browser';
+export interface ChartItem {
+    title: string;
+    creator?: string;
+    coverImg: HTMLImageElement;
+    coverURL: string;
+}
+export interface ChartSize {
+    x: number;
+    y: number;
+}
+export interface Chart {
+    title: string;
+    items: Array<ChartItem | null>;
+    size: ChartSize;
+    color: string;
+    showTitles: boolean;
+    gap: number;
+}
 export declare const getMaxTitleWidth: (chart: Chart) => number;
 export declare const getScaledDimensions: (img: HTMLImageElement | Image, cellSize: number) => {
     height: number;

@@ -4,27 +4,7 @@ import {
   drawCover,
   setup
 } from './common'
-
-export interface ChartItem {
-  title: string,
-  creator?: string,
-  coverImg: HTMLImageElement,
-  coverURL: string
-}
-
-export interface ChartSize {
-  x: number,
-  y: number
-}
-
-export interface Chart {
-  title: string,
-  items: ChartItem[],
-  size: ChartSize,
-  color: string,
-  showTitles: boolean,
-  gap: number
-}
+import { Chart, ChartItem } from './common'
 
 const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
   // gap between cells (pixels)
@@ -83,7 +63,11 @@ const insertCoverImages = (
     )
   }
 
-  chart.items.forEach((item: ChartItem, index: number) => {
+  chart.items.forEach((item: ChartItem | null, index: number) => {
+    if (!item) {
+      return null
+    }
+
     // Don't overflow outside the bounds of the chart
     // This way, items will be saved if the chart is too big for them
     // and the user can just expand the chart and they'll fill in again

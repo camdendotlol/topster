@@ -1,33 +1,14 @@
-import { Canvas, Image, loadImage, registerFont } from 'canvas'
+import { Canvas, loadImage, registerFont } from 'canvas'
 import path from 'path'
 
 import {
   getMaxTitleWidth,
   getScaledDimensions,
   drawCover,
-  setup
+  setup,
+  Chart,
+  ChartItem
 } from './common'
-
-export interface ChartItem {
-  title: string,
-  creator?: string,
-  coverImg: HTMLImageElement,
-  coverURL: string
-}
-
-export interface ChartSize {
-  x: number,
-  y: number
-}
-
-export interface Chart {
-  title: string,
-  items: ChartItem[],
-  size: ChartSize,
-  color: string,
-  showTitles: boolean,
-  gap: number
-}
 
 registerFont(path.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
 
@@ -74,6 +55,11 @@ const insertCoverImages = async (
   }
 
   for (const { item, index } of chart.items.map((item, index) => ({ item, index }))) {
+    // If a cell is null, that means it's empty, so we can pass over it.
+    if (!item) {
+      return null
+    }
+
     // Don't overflow outside the bounds of the chart
     // This way, items will be saved if the chart is too big for them
     // and the user can just expand the chart and they'll fill in again

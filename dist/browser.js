@@ -34,6 +34,9 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
     chart.items.forEach((item, index) => {
+        if (!item) {
+            return null;
+        }
         // Don't overflow outside the bounds of the chart
         // This way, items will be saved if the chart is too big for them
         // and the user can just expand the chart and they'll fill in again

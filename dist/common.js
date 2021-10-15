@@ -8,15 +8,17 @@ const getMaxTitleWidth = (chart) => {
     if (chart.showTitles) {
         for (let x = 0; x < chart.items.length; x++) {
             const item = chart.items[x];
-            const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
-            // node-canvas's measureText method is broken
-            // so we need to use this weird hardcoded method
-            // each pixel of 14px Ubuntu Mono is roughly 11px wide
-            // this could use some improvement but it keeps the text from getting cut off
-            // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-            const width = (name.length * 11) + chart.gap + 10;
-            if (width > maxTitleWidth) {
-                maxTitleWidth = width;
+            if (item) {
+                const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
+                // node-canvas's measureText method is broken
+                // so we need to use this weird hardcoded method
+                // each pixel of 14px Ubuntu Mono is roughly 11px wide
+                // this could use some improvement but it keeps the text from getting cut off
+                // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
+                const width = (name.length * 11) + chart.gap + 10;
+                if (width > maxTitleWidth) {
+                    maxTitleWidth = width;
+                }
             }
         }
     }
