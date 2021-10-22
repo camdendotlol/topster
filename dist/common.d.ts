@@ -1,30 +1,30 @@
 import { Canvas, Image } from 'canvas';
-export interface ChartItem {
+export interface NodeChart extends BaseChart {
+    items: Array<NodeChartItem | null>;
+}
+export interface BrowserChart extends BaseChart {
+    items: Array<BrowserChartItem | null>;
+}
+export interface NodeChartItem {
     title: string;
     creator?: string;
     coverURL: string;
 }
-export interface ChartSize {
+export interface BrowserChartItem extends NodeChartItem {
+    coverImg: HTMLImageElement;
+}
+interface ChartSize {
     x: number;
     y: number;
 }
-export interface BaseChart {
+interface BaseChart {
     title: string;
     size: ChartSize;
     color: string;
     showTitles: boolean;
     gap: number;
 }
-export interface NodeChart extends BaseChart {
-    items: Array<ChartItem | null>;
-}
-export interface BrowserChart extends BaseChart {
-    items: Array<BrowserChartItem | null>;
-}
-export interface BrowserChartItem extends ChartItem {
-    coverImg: HTMLImageElement;
-}
-export declare type Chart = NodeChart | BrowserChart;
+declare type Chart = NodeChart | BrowserChart;
 interface CanvasInfo {
     width: number;
     height: number;

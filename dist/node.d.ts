@@ -1,4 +1,4 @@
 import { Canvas } from 'canvas';
-import { Chart } from './common';
-declare const generateChart: (canvas: Canvas, chart: Chart) => Promise<Canvas>;
+import { NodeChart } from './common';
+declare const generateChart: (canvas: Canvas, chart: NodeChart) => Promise<Canvas>;
 export default generateChart;
