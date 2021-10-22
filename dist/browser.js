@@ -2,26 +2,10 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
 const generateChart = (canvas, chart) => {
-    // gap between cells (pixels)
-    const gap = chart.gap;
-    const maxItemTitleWidth = (0, common_1.getMaxTitleWidth)(chart);
-    // height/width of each square cell
-    const cellSize = 260;
-    const chartTitleMargin = chart.title === '' ? 0 : 60;
-    const pixelDimensions = {
-        // room for each cell + gap between cells + margins
-        x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
-        y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
-    };
-    canvas.width = pixelDimensions.x;
-    canvas.height = pixelDimensions.y;
-    (0, common_1.setup)(canvas, chart);
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-        throw new Error('Missing canvas context.');
-    }
-    ctx.fillStyle = ('#e9e9e9');
-    insertCoverImages(canvas, chart, cellSize, gap, maxItemTitleWidth, chartTitleMargin);
+    const canvasInfo = (0, common_1.setup)(canvas, chart);
+    (0, common_1.drawBackground)(canvas, chart);
+    (0, common_1.drawTitle)(canvas, chart);
+    insertCoverImages(canvas, chart, canvasInfo.cellSize, chart.gap, canvasInfo.maxItemTitleWidth, canvasInfo.chartTitleMargin);
     return canvas;
 };
 const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTitleMargin) => {
@@ -47,7 +31,7 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
             x: (index % chart.size.x),
             y: Math.floor(index / chart.size.x)
         };
-        insertImage(item, coords, cellSize, gap, ctx, chartTitleMargin);
+        insertImage(canvas, item, coords, cellSize, gap, chartTitleMargin);
         if (chart.showTitles) {
             ctx.font = '16pt "Ubuntu Mono"';
             ctx.textAlign = 'left';
@@ -55,8 +39,8 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         }
     });
 };
-const insertImage = (item, coords, cellSize, gap, ctx, chartTitleMargin) => {
+const insertImage = (canvas, item, coords, cellSize, gap, chartTitleMargin) => {
     const dimensions = (0, common_1.getScaledDimensions)(item.coverImg, cellSize);
-    (0, common_1.drawCover)(item.coverImg, coords, cellSize, gap, dimensions, ctx, chartTitleMargin);
+    (0, common_1.drawCover)(canvas, item.coverImg, coords, cellSize, gap, dimensions, chartTitleMargin);
 };
 exports.default = generateChart;

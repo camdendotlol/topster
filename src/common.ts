@@ -1,29 +1,49 @@
-import { Canvas, Image, NodeCanvasRenderingContext2D } from 'canvas'
+import { Canvas, Image } from 'canvas'
 
-export interface ChartItem {
+export interface NodeChart extends BaseChart {
+  items: Array<NodeChartItem | null>
+}
+
+export interface BrowserChart extends BaseChart {
+  items: Array<BrowserChartItem | null>
+}
+
+export interface NodeChartItem {
   title: string,
   creator?: string,
-  coverImg: HTMLImageElement,
   coverURL: string
 }
 
-export interface ChartSize {
+export interface BrowserChartItem extends NodeChartItem {
+  coverImg: HTMLImageElement
+}
+
+interface ChartSize {
   x: number,
   y: number
 }
 
-export interface Chart {
+interface BaseChart {
   title: string,
-  items: Array<ChartItem | null>,
   size: ChartSize,
   color: string,
   showTitles: boolean,
   gap: number
 }
 
+type Chart = NodeChart | BrowserChart
+
+interface CanvasInfo {
+  width: number,
+  height: number,
+  cellSize: number,
+  chartTitleMargin: number,
+  maxItemTitleWidth: number
+}
+
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-export const getMaxTitleWidth = (chart: Chart): number => {
+const getMaxTitleWidth = (chart: Chart): number => {
   let maxTitleWidth = 0
 
   if (chart.showTitles) {
@@ -77,18 +97,19 @@ export const getScaledDimensions = (img: HTMLImageElement | Image, cellSize: num
 }
 
 export const drawCover = (
+  canvas: Canvas | HTMLCanvasElement,
   cover: Image | HTMLImageElement,
   coords: { x: number, y: number },
   cellSize: number,
   gap: number,
   dimensions: { height: number, width: number },
-  ctx: CanvasRenderingContext2D | NodeCanvasRenderingContext2D,
   chartTitleMargin: number
 ): void => {
+  const ctx = getContext(canvas)
+
   ctx.drawImage(
-    // Lying to TS here!
-    // Node-canvas and HTML Canvas have different sets of CTX & Image types.
-    // TS doesn't know we've ensured that this is always called with compatible types.
+    // We have to cast this as HTMLImageElement even if it's a Node Canvas Image,
+    // because ctx doesn't know what to do with the latter.
     cover as HTMLImageElement,
     (coords.x * (cellSize + gap)) + gap + findCenteringOffset(dimensions.width, cellSize),
     (coords.y * (cellSize + gap)) + gap + findCenteringOffset(dimensions.height, cellSize) + chartTitleMargin,
@@ -97,26 +118,95 @@ export const drawCover = (
   )
 }
 
-// Initial setup for the chart.
-// Fills in the background, adds title, etc.
+const isHTMLImage = (img: HTMLImageElement | Image): img is HTMLImageElement => {
+  if ((img as HTMLImageElement).addEventListener) {
+    return true
+  } else {
+    return false
+  }
+}
+
+// Just calculates some data and sets the size of the chart
 export const setup = (
   canvas: Canvas | HTMLCanvasElement,
   chart: Chart
-): void => {
-  const ctx = canvas.getContext('2d')
+): CanvasInfo => {
+  const gap = chart.gap
+  const maxItemTitleWidth = getMaxTitleWidth(chart)
+
+  // height/width of each square cell
+  const cellSize = 260
+
+  const chartTitleMargin = chart.title === '' ? 0 : 60
+
+  const pixelDimensions = {
+    // room for each cell + gap between cells + margins
+    x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
+    y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
+  }
+
+  canvas.width = pixelDimensions.x
+  canvas.height = pixelDimensions.y
+
+  return {
+    width: pixelDimensions.x,
+    height: pixelDimensions.y,
+    cellSize,
+    chartTitleMargin,
+    maxItemTitleWidth
+  }
+}
+
+// Initial setup for the chart.
+// Fills in the background, adds title, etc.
+export const drawBackground = (
+  canvas: Canvas | HTMLCanvasElement,
+  chart: Chart
+  ): void => {
+  const ctx = getContext(canvas)
+  ctx.fillStyle = ('#e9e9e9')
+
+  ctx.beginPath()
+  ctx.fillStyle = chart.color
+  ctx.fillRect(0, 0, canvas.width, canvas.height)
+}
+
+export const drawTitle = (
+  canvas: Canvas | HTMLCanvasElement,
+  chart: Chart
+) => {
+  const ctx = getContext(canvas)
+  ctx.font = '38pt "Ubuntu Mono"'
+  ctx.fillStyle = '#e9e9e9'
+  ctx.textAlign = 'center'
+  ctx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
+}
+
+const getContext = (canvas: Canvas | HTMLCanvasElement) => {
+  let ctx
+
+  // TypeScript gets confused when these types are together for some reason,
+  // but it's okay when we split them up. Very annoying!
+  if (isNodeCanvas(canvas)) {
+    ctx = canvas.getContext('2d')
+  } else {
+    ctx = canvas.getContext('2d')
+  }
 
   if (!ctx) {
     throw new Error('Missing canvas context.')
   }
 
-  const tsCompatCtx = ctx as NodeCanvasRenderingContext2D
+  return ctx
+}
 
-  tsCompatCtx.beginPath()
-  tsCompatCtx.fillStyle = chart.color
-  tsCompatCtx.fillRect(0, 0, canvas.width, canvas.height)
-
-  tsCompatCtx.font = '38pt "Ubuntu Mono"'
-  tsCompatCtx.fillStyle = '#e9e9e9'
-  tsCompatCtx.textAlign = 'center'
-  tsCompatCtx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
+// Type guard to see whether we're dealing with a Node canvas or
+// an HTML canvas. Only an HTML canvas has the addEventListener
+// property so it's a good choice for this.
+const isNodeCanvas = (canvas: Canvas | HTMLCanvasElement): canvas is Canvas => {
+  if ((canvas as HTMLCanvasElement).addEventListener) {
+    return false
+  } else {
+    return true
+  }
 }

@@ -1,48 +1,34 @@
 import {
-  getMaxTitleWidth,
   getScaledDimensions,
   drawCover,
-  setup
+  setup,
+  BrowserChartItem,
+  BrowserChart,
+  drawBackground,
+  drawTitle
 } from './common'
-import { Chart, ChartItem } from './common'
 
-const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
-  // gap between cells (pixels)
-  const gap = chart.gap
-  const maxItemTitleWidth = getMaxTitleWidth(chart)
+const generateChart = (canvas: HTMLCanvasElement, chart: BrowserChart): HTMLCanvasElement => {
+  const canvasInfo = setup(canvas, chart)
 
-  // height/width of each square cell
-  const cellSize = 260
+  drawBackground(canvas, chart)
+  drawTitle(canvas, chart)
 
-  const chartTitleMargin = chart.title === '' ? 0 : 60
-
-  const pixelDimensions = {
-    // room for each cell + gap between cells + margins
-    x: (chart.size.x * (cellSize + gap)) + gap + maxItemTitleWidth,
-    y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
-  }
-
-  canvas.width = pixelDimensions.x
-  canvas.height = pixelDimensions.y
-
-  setup(canvas, chart)
-
-  const ctx = canvas.getContext('2d')
-
-  if (!ctx) {
-    throw new Error('Missing canvas context.')
-  }
-
-  ctx.fillStyle = ('#e9e9e9')
-
-  insertCoverImages(canvas, chart, cellSize, gap, maxItemTitleWidth, chartTitleMargin)
+  insertCoverImages(
+    canvas,
+    chart,
+    canvasInfo.cellSize,
+    chart.gap,
+    canvasInfo.maxItemTitleWidth,
+    canvasInfo.chartTitleMargin
+  )
 
   return canvas
 }
 
 const insertCoverImages = (
   canvas: HTMLCanvasElement,
-  chart: Chart,
+  chart: BrowserChart,
   cellSize: number,
   gap: number,
   maxTitleWidth: number,
@@ -54,7 +40,7 @@ const insertCoverImages = (
     throw new Error('Canvas ctx not found')
   }
 
-  const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
+  const insertTitle = (item: BrowserChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
     const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
     ctx.fillText(
       titleString,
@@ -63,7 +49,7 @@ const insertCoverImages = (
     )
   }
 
-  chart.items.forEach((item: ChartItem | null, index: number) => {
+  chart.items.forEach((item: BrowserChartItem | null, index: number) => {
     if (!item) {
       return null
     }
@@ -80,7 +66,15 @@ const insertCoverImages = (
       y: Math.floor(index / chart.size.x)
     }
 
-    insertImage(item, coords, cellSize, gap, ctx, chartTitleMargin)
+    insertImage(
+      canvas,
+      item,
+      coords,
+      cellSize,
+      gap,
+      chartTitleMargin
+    )
+
     if (chart.showTitles) {
       ctx.font = '16pt "Ubuntu Mono"'
       ctx.textAlign = 'left'
@@ -90,22 +84,22 @@ const insertCoverImages = (
 }
 
 const insertImage = (
-  item: ChartItem,
+  canvas: HTMLCanvasElement,
+  item: BrowserChartItem,
   coords: { x: number, y: number },
   cellSize: number,
   gap: number,
-  ctx: CanvasRenderingContext2D,
   chartTitleMargin: number
 ) => {
   const dimensions = getScaledDimensions(item.coverImg, cellSize)
 
   drawCover(
+    canvas,
     item.coverImg,
     coords,
     cellSize,
     gap,
     dimensions,
-    ctx,
     chartTitleMargin
   )
 }
