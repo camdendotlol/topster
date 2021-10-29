@@ -1,6 +1,6 @@
 {
   "name": "topster",
-  "version": "3.1.4",
+  "version": "3.1.5",
   "description": "Generate an HTML Canvas Topster chart",
   "author": "Camden Mecklem",
   "license": "MIT",
@@ -16,10 +16,12 @@
     "build": "tsc",
     "test": "NODE_ENV=test jest"
   },
+  "dependencies": {
+    "canvas": "^2.8.0"
+  },
   "devDependencies": {
     "@types/jest": "^27.0.2",
     "@types/node": "^16.10.2",
-    "canvas": "^2.8.0",
     "jest": "^27.3.1",
     "ts-jest": "^27.0.7",
     "typescript": "^4.4.3"
