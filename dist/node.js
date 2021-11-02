@@ -18,7 +18,17 @@ const common_1 = require("./common");
 (0, canvas_1.registerFont)(path_1.default.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' });
 const generateChart = (canvas, chart) => __awaiter(void 0, void 0, void 0, function* () {
     const canvasInfo = (0, common_1.setup)(canvas, chart);
-    (0, common_1.drawBackground)(canvas, chart);
+    if (chart.background.type === common_1.BackgroundTypes.Color) {
+        (0, common_1.fillBackgroundColor)(canvas, chart);
+    }
+    else {
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const img = new Image();
+        img.src = chart.background.value;
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+    }
     (0, common_1.drawTitle)(canvas, chart);
     yield insertCoverImages(canvas, chart, canvasInfo.cellSize, chart.gap, canvasInfo.maxItemTitleWidth, canvasInfo.chartTitleMargin);
     return canvas;

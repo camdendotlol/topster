@@ -1,11 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.drawTitle = exports.drawBackground = exports.setup = exports.drawCover = exports.getScaledDimensions = void 0;
+exports.drawTitle = exports.fillBackgroundColor = exports.setup = exports.drawCover = exports.getScaledDimensions = exports.BackgroundTypes = void 0;
 var BackgroundTypes;
 (function (BackgroundTypes) {
     BackgroundTypes["Color"] = "color";
     BackgroundTypes["Image"] = "image";
-})(BackgroundTypes || (BackgroundTypes = {}));
+})(BackgroundTypes = exports.BackgroundTypes || (exports.BackgroundTypes = {}));
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
 const getMaxTitleWidth = (chart) => {
@@ -98,25 +98,13 @@ const setup = (canvas, chart) => {
     };
 };
 exports.setup = setup;
-// Initial setup for the chart.
-// Fills in the background, adds title, etc.
-const drawBackground = (canvas, chart) => {
+const fillBackgroundColor = (canvas, chart) => {
     const ctx = getContext(canvas);
-    ctx.fillStyle = ('#e9e9e9');
-    if (chart.background.type === BackgroundTypes.Color) {
-        ctx.beginPath();
-        ctx.fillStyle = chart.background.value;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-    else if (chart.background.type === BackgroundTypes.Image) {
-        const img = new HTMLImageElement();
-        img.src = chart.background.value;
-        img.onload = () => {
-            ctx.drawImage(img, 0, 0);
-        };
-    }
+    ctx.beginPath();
+    ctx.fillStyle = chart.background.value;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 };
-exports.drawBackground = drawBackground;
+exports.fillBackgroundColor = fillBackgroundColor;
 const drawTitle = (canvas, chart) => {
     const ctx = getContext(canvas);
     ctx.font = '38pt "Ubuntu Mono"';

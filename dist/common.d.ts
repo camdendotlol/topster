@@ -17,7 +17,7 @@ interface ChartSize {
     x: number;
     y: number;
 }
-declare enum BackgroundTypes {
+export declare enum BackgroundTypes {
     Color = "color",
     Image = "image"
 }
@@ -51,6 +51,6 @@ export declare const drawCover: (canvas: Canvas | HTMLCanvasElement, cover: Imag
     width: number;
 }, chartTitleMargin: number) => void;
 export declare const setup: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => CanvasInfo;
-export declare const drawBackground: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
+export declare const fillBackgroundColor: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
 export declare const drawTitle: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
 export {};

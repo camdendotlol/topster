@@ -3,7 +3,17 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const common_1 = require("./common");
 const generateChart = (canvas, chart) => {
     const canvasInfo = (0, common_1.setup)(canvas, chart);
-    (0, common_1.drawBackground)(canvas, chart);
+    if (chart.background.type === common_1.BackgroundTypes.Color) {
+        (0, common_1.fillBackgroundColor)(canvas, chart);
+    }
+    else {
+        const ctx = canvas.getContext('2d', { alpha: false });
+        const img = new Image();
+        img.src = chart.background.value;
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+    }
     (0, common_1.drawTitle)(canvas, chart);
     insertCoverImages(canvas, chart, canvasInfo.cellSize, chart.gap, canvasInfo.maxItemTitleWidth, canvasInfo.chartTitleMargin);
     return canvas;
