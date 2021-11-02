@@ -17,10 +17,17 @@ interface ChartSize {
     x: number;
     y: number;
 }
+declare enum BackgroundTypes {
+    Color = "color",
+    Image = "image"
+}
 interface BaseChart {
     title: string;
     size: ChartSize;
-    color: string;
+    background: {
+        type: BackgroundTypes;
+        value: string;
+    };
     showTitles: boolean;
     gap: number;
 }

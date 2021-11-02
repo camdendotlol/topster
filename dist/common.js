@@ -1,6 +1,11 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.drawTitle = exports.drawBackground = exports.setup = exports.drawCover = exports.getScaledDimensions = void 0;
+var BackgroundTypes;
+(function (BackgroundTypes) {
+    BackgroundTypes["Color"] = "color";
+    BackgroundTypes["Image"] = "image";
+})(BackgroundTypes || (BackgroundTypes = {}));
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
 const getMaxTitleWidth = (chart) => {
@@ -98,9 +103,18 @@ exports.setup = setup;
 const drawBackground = (canvas, chart) => {
     const ctx = getContext(canvas);
     ctx.fillStyle = ('#e9e9e9');
-    ctx.beginPath();
-    ctx.fillStyle = chart.color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    if (chart.background.type === BackgroundTypes.Color) {
+        ctx.beginPath();
+        ctx.fillStyle = chart.background.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    else if (chart.background.type === BackgroundTypes.Image) {
+        const img = new HTMLImageElement();
+        img.src = chart.background.value;
+        img.onload = () => {
+            ctx.drawImage(img, 0, 0);
+        };
+    }
 };
 exports.drawBackground = drawBackground;
 const drawTitle = (canvas, chart) => {

@@ -23,10 +23,18 @@ interface ChartSize {
   y: number
 }
 
+enum BackgroundTypes {
+  Color = 'color',
+  Image = 'image'
+}
+
 interface BaseChart {
   title: string,
   size: ChartSize,
-  color: string,
+  background: {
+    type: BackgroundTypes,
+    value: string
+  }
   showTitles: boolean,
   gap: number
 }
@@ -166,9 +174,18 @@ export const drawBackground = (
   const ctx = getContext(canvas)
   ctx.fillStyle = ('#e9e9e9')
 
-  ctx.beginPath()
-  ctx.fillStyle = chart.color
-  ctx.fillRect(0, 0, canvas.width, canvas.height)
+  if (chart.background.type === BackgroundTypes.Color) {
+    ctx.beginPath()
+    ctx.fillStyle = chart.background.value
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  } else if (chart.background.type === BackgroundTypes.Image) {
+    const img = new HTMLImageElement()
+    img.src = chart.background.value
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0)
+    }
+  }
+
 }
 
 export const drawTitle = (
