@@ -4,6 +4,11 @@ export interface NodeChart extends BaseChart {
 }
 export interface BrowserChart extends BaseChart {
     items: Array<BrowserChartItem | null>;
+    background: {
+        type: BackgroundTypes;
+        value: string;
+        img: HTMLImageElement | null;
+    };
 }
 export interface NodeChartItem {
     title: string;
@@ -51,6 +56,6 @@ export declare const drawCover: (canvas: Canvas | HTMLCanvasElement, cover: Imag
     width: number;
 }, chartTitleMargin: number) => void;
 export declare const setup: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => CanvasInfo;
-export declare const fillBackgroundColor: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
+export declare const drawBackground: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
 export declare const drawTitle: (canvas: Canvas | HTMLCanvasElement, chart: Chart) => void;
 export {};

@@ -4,25 +4,14 @@ import {
   setup,
   BrowserChartItem,
   BrowserChart,
-  fillBackgroundColor,
   drawTitle,
-  BackgroundTypes
+  drawBackground
 } from './common'
 
 const generateChart = (canvas: HTMLCanvasElement, chart: BrowserChart): HTMLCanvasElement => {
   const canvasInfo = setup(canvas, chart)
 
-  if (chart.background.type === BackgroundTypes.Color) {
-    fillBackgroundColor(canvas, chart)
-  } else {
-    const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
-    const img = new Image()
-    img.src = chart.background.value
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0)
-    }
-  }
-
+  drawBackground(canvas, chart)
 
   drawTitle(canvas, chart)
 

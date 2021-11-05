@@ -7,9 +7,8 @@ import {
   setup,
   NodeChart,
   NodeChartItem,
-  fillBackgroundColor,
   drawTitle,
-  BackgroundTypes
+  drawBackground
 } from './common'
 
 registerFont(path.join(__dirname, 'UbuntuMono-Regular.ttf'), { family: 'Ubuntu Mono' })
@@ -20,16 +19,7 @@ const generateChart = async (
 ): Promise<Canvas> => {
   const canvasInfo = setup(canvas, chart)
 
-  if (chart.background.type === BackgroundTypes.Color) {
-    fillBackgroundColor(canvas, chart)
-  } else {
-    const ctx = canvas.getContext('2d', { alpha: false }) as CanvasRenderingContext2D
-    const img = new Image()
-    img.src = chart.background.value
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0)
-    }
-  }
+  await drawBackground(canvas, chart)
 
   drawTitle(canvas, chart)
 

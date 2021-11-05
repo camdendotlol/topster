@@ -1,6 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.drawTitle = exports.fillBackgroundColor = exports.setup = exports.drawCover = exports.getScaledDimensions = exports.BackgroundTypes = void 0;
+exports.drawTitle = exports.drawBackground = exports.setup = exports.drawCover = exports.getScaledDimensions = exports.BackgroundTypes = void 0;
+const canvas_1 = require("canvas");
 var BackgroundTypes;
 (function (BackgroundTypes) {
     BackgroundTypes["Color"] = "color";
@@ -67,14 +68,6 @@ const drawCover = (canvas, cover, coords, cellSize, gap, dimensions, chartTitleM
     cover, (coords.x * (cellSize + gap)) + gap + findCenteringOffset(dimensions.width, cellSize), (coords.y * (cellSize + gap)) + gap + findCenteringOffset(dimensions.height, cellSize) + chartTitleMargin, dimensions.width, dimensions.height);
 };
 exports.drawCover = drawCover;
-const isHTMLImage = (img) => {
-    if (img.addEventListener) {
-        return true;
-    }
-    else {
-        return false;
-    }
-};
 // Just calculates some data and sets the size of the chart
 const setup = (canvas, chart) => {
     const gap = chart.gap;
@@ -98,13 +91,39 @@ const setup = (canvas, chart) => {
     };
 };
 exports.setup = setup;
-const fillBackgroundColor = (canvas, chart) => {
-    const ctx = getContext(canvas);
-    ctx.beginPath();
-    ctx.fillStyle = chart.background.value;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+const drawBackground = (canvas, chart) => {
+    var _a;
+    if (chart.background.type === BackgroundTypes.Color) {
+        const ctx = getContext(canvas);
+        ctx.beginPath();
+        ctx.fillStyle = chart.background.value;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+    else {
+        // We have to handle things a bit differently between Node and Browser
+        if (isNodeCanvas(canvas)) {
+            const ctx = getContext(canvas);
+            (0, canvas_1.loadImage)(chart.background.value)
+                .then(img => ctx.drawImage(img, 0, 0));
+        }
+        else {
+            if (isBrowserChart(chart) && ((_a = chart.background.img) === null || _a === void 0 ? void 0 : _a.complete)) {
+                const ctx = getContext(canvas);
+                const imageRatio = chart.background.img.height / chart.background.img.width;
+                const canvasRatio = canvas.height / canvas.width;
+                if (imageRatio > canvasRatio) {
+                    const height = canvas.width * imageRatio;
+                    ctx.drawImage(chart.background.img, 0, Math.floor((canvas.height - height) / 2), canvas.width, height);
+                }
+                else {
+                    const width = canvas.width * canvasRatio / imageRatio;
+                    ctx.drawImage(chart.background.img, (canvas.width - width), 0, width, canvas.height);
+                }
+            }
+        }
+    }
 };
-exports.fillBackgroundColor = fillBackgroundColor;
+exports.drawBackground = drawBackground;
 const drawTitle = (canvas, chart) => {
     const ctx = getContext(canvas);
     ctx.font = '38pt "Ubuntu Mono"';
@@ -137,5 +156,13 @@ const isNodeCanvas = (canvas) => {
     }
     else {
         return true;
+    }
+};
+const isBrowserChart = (chart) => {
+    if (chart.background.img) {
+        return true;
+    }
+    else {
+        return false;
     }
 };
