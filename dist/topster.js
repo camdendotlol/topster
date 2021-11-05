@@ -1,10 +1,10 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-const common_1 = require("./common");
+const lib_1 = require("./lib");
 const generateChart = (canvas, chart) => {
-    const canvasInfo = (0, common_1.setup)(canvas, chart);
-    (0, common_1.drawBackground)(canvas, chart);
-    (0, common_1.drawTitle)(canvas, chart);
+    const canvasInfo = (0, lib_1.setup)(canvas, chart);
+    (0, lib_1.drawBackground)(canvas, chart);
+    (0, lib_1.drawTitle)(canvas, chart);
     insertCoverImages(canvas, chart, canvasInfo.cellSize, chart.gap, canvasInfo.maxItemTitleWidth, canvasInfo.chartTitleMargin);
     return canvas;
 };
@@ -40,7 +40,7 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
     });
 };
 const insertImage = (canvas, item, coords, cellSize, gap, chartTitleMargin) => {
-    const dimensions = (0, common_1.getScaledDimensions)(item.coverImg, cellSize);
-    (0, common_1.drawCover)(canvas, item.coverImg, coords, cellSize, gap, dimensions, chartTitleMargin);
+    const dimensions = (0, lib_1.getScaledDimensions)(item.coverImg, cellSize);
+    (0, lib_1.drawCover)(canvas, item.coverImg, coords, cellSize, gap, dimensions, chartTitleMargin);
 };
 exports.default = generateChart;

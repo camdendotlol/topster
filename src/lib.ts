@@ -1,28 +1,3 @@
-import { Canvas, Image, loadImage, NodeCanvasRenderingContext2D } from 'canvas'
-
-export interface NodeChart extends BaseChart {
-  items: Array<NodeChartItem | null>
-}
-
-export interface BrowserChart extends BaseChart {
-  items: Array<BrowserChartItem | null>,
-  background: {
-    type: BackgroundTypes,
-    value: string,
-    img: HTMLImageElement | null
-  }
-}
-
-export interface NodeChartItem {
-  title: string,
-  creator?: string,
-  coverURL: string
-}
-
-export interface BrowserChartItem extends NodeChartItem {
-  coverImg: HTMLImageElement
-}
-
 interface ChartSize {
   x: number,
   y: number
@@ -33,18 +8,25 @@ export enum BackgroundTypes {
   Image = 'image'
 }
 
-interface BaseChart {
+export interface ChartItem {
   title: string,
+  creator?: string,
+  coverURL: string,
+  coverImg: HTMLImageElement
+}
+
+export interface Chart {
+  title: string,
+  items: Array<ChartItem | null>,
   size: ChartSize,
   background: {
     type: BackgroundTypes,
-    value: string
-  }
+    value: string,
+    img: HTMLImageElement | null
+  },
   showTitles: boolean,
   gap: number
 }
-
-type Chart = NodeChart | BrowserChart
 
 interface CanvasInfo {
   width: number,
@@ -90,7 +72,7 @@ const findCenteringOffset = (dimension: number, cellSize: number) => {
   }
 }
 
-export const getScaledDimensions = (img: HTMLImageElement | Image, cellSize: number): { height: number, width: number } => {
+export const getScaledDimensions = (img: HTMLImageElement, cellSize: number): { height: number, width: number } => {
   let differencePercentage = 1
 
   if (img.width > cellSize && img.height > cellSize) {
@@ -110,8 +92,8 @@ export const getScaledDimensions = (img: HTMLImageElement | Image, cellSize: num
 }
 
 export const drawCover = (
-  canvas: Canvas | HTMLCanvasElement,
-  cover: Image | HTMLImageElement,
+  canvas: HTMLCanvasElement,
+  cover: HTMLImageElement,
   coords: { x: number, y: number },
   cellSize: number,
   gap: number,
@@ -133,7 +115,7 @@ export const drawCover = (
 
 // Just calculates some data and sets the size of the chart
 export const setup = (
-  canvas: Canvas | HTMLCanvasElement,
+  canvas: HTMLCanvasElement,
   chart: Chart
 ): CanvasInfo => {
   const gap = chart.gap
@@ -163,7 +145,7 @@ export const setup = (
 }
 
 export const drawBackground = (
-  canvas: Canvas | HTMLCanvasElement,
+  canvas: HTMLCanvasElement,
   chart: Chart
   ): void => {
     if (chart.background.type === BackgroundTypes.Color) {
@@ -172,44 +154,37 @@ export const drawBackground = (
       ctx.fillStyle = chart.background.value
       ctx.fillRect(0, 0, canvas.width, canvas.height)
     } else {
-      // We have to handle things a bit differently between Node and Browser
-      if (isNodeCanvas(canvas)) {
-        const ctx = getContext(canvas) as NodeCanvasRenderingContext2D
-        loadImage(chart.background.value)
-          .then(img => ctx.drawImage(img, 0, 0))
-      } else {
-        if (isBrowserChart(chart) && chart.background.img?.complete) {
-          const ctx = getContext(canvas)
+      if (chart.background.img?.complete) {
+        const ctx = getContext(canvas)
 
-          const imageRatio = chart.background.img.height / chart.background.img.width
-          const canvasRatio = canvas.height / canvas.width
+        const imageRatio = chart.background.img.height / chart.background.img.width
+        const canvasRatio = canvas.height / canvas.width
 
-          if (imageRatio > canvasRatio) {
-            const height = canvas.width * imageRatio
-            ctx.drawImage(
-              chart.background.img,
-              0,
-              Math.floor((canvas.height - height) / 2),
-              canvas.width,
-              height
-            )
-          } else {
-            const width = canvas.width * canvasRatio / imageRatio
-            ctx.drawImage(
-              chart.background.img,
-              (canvas.width - width),
-              0,
-              width,
-              canvas.height
-            )
-          }
+        if (imageRatio > canvasRatio) {
+          const height = canvas.width * imageRatio
+          ctx.drawImage(
+            chart.background.img,
+            0,
+            Math.floor((canvas.height - height) / 2),
+            canvas.width,
+            height
+          )
+        } else {
+          const width = canvas.width * canvasRatio / imageRatio
+          ctx.drawImage(
+            chart.background.img,
+            (canvas.width - width),
+            0,
+            width,
+            canvas.height
+          )
         }
       }
+      }
     }
-}
 
 export const drawTitle = (
-  canvas: Canvas | HTMLCanvasElement,
+  canvas: HTMLCanvasElement,
   chart: Chart
 ) => {
   const ctx = getContext(canvas)
@@ -219,39 +194,12 @@ export const drawTitle = (
   ctx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
 }
 
-const getContext = (canvas: Canvas | HTMLCanvasElement) => {
-  let ctx
-
-  // TypeScript gets confused when these types are together for some reason,
-  // but it's okay when we split them up. Very annoying!
-  if (isNodeCanvas(canvas)) {
-    ctx = canvas.getContext('2d')
-  } else {
-    ctx = canvas.getContext('2d')
-  }
+const getContext = (canvas: HTMLCanvasElement) => {
+  const ctx = canvas.getContext('2d')
 
   if (!ctx) {
     throw new Error('Missing canvas context.')
   }
 
   return ctx
-}
-
-// Type guard to see whether we're dealing with a Node canvas or
-// an HTML canvas. Only an HTML canvas has the addEventListener
-// property so it's a good choice for this.
-const isNodeCanvas = (canvas: Canvas | HTMLCanvasElement): canvas is Canvas => {
-  if ((canvas as HTMLCanvasElement).addEventListener) {
-    return false
-  } else {
-    return true
-  }
-}
-
-const isBrowserChart = (chart: Chart): chart is BrowserChart => {
-  if ((chart as BrowserChart).background.img) {
-    return true
-  } else {
-    return false
-  }
 }

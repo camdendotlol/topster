@@ -2,13 +2,13 @@ import {
   getScaledDimensions,
   drawCover,
   setup,
-  BrowserChartItem,
-  BrowserChart,
+  ChartItem,
+  Chart,
   drawTitle,
   drawBackground
-} from './common'
+} from './lib'
 
-const generateChart = (canvas: HTMLCanvasElement, chart: BrowserChart): HTMLCanvasElement => {
+const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
   const canvasInfo = setup(canvas, chart)
 
   drawBackground(canvas, chart)
@@ -29,7 +29,7 @@ const generateChart = (canvas: HTMLCanvasElement, chart: BrowserChart): HTMLCanv
 
 const insertCoverImages = (
   canvas: HTMLCanvasElement,
-  chart: BrowserChart,
+  chart: Chart,
   cellSize: number,
   gap: number,
   maxTitleWidth: number,
@@ -41,7 +41,7 @@ const insertCoverImages = (
     throw new Error('Canvas ctx not found')
   }
 
-  const insertTitle = (item: BrowserChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
+  const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
     const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
     ctx.fillText(
       titleString,
@@ -50,7 +50,7 @@ const insertCoverImages = (
     )
   }
 
-  chart.items.forEach((item: BrowserChartItem | null, index: number) => {
+  chart.items.forEach((item: ChartItem | null, index: number) => {
     if (!item) {
       return null
     }
@@ -86,7 +86,7 @@ const insertCoverImages = (
 
 const insertImage = (
   canvas: HTMLCanvasElement,
-  item: BrowserChartItem,
+  item: ChartItem,
   coords: { x: number, y: number },
   cellSize: number,
   gap: number,

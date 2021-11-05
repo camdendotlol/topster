@@ -1,6 +1,6 @@
 {
   "name": "topster",
-  "version": "4.0.0",
+  "version": "5.0.0",
   "description": "Generate an HTML Canvas Topster chart",
   "author": "Camden Mecklem",
   "license": "MIT",
@@ -8,14 +8,10 @@
     "type": "git",
     "url": "https://github.com/mythmakerseven/topster"
   },
-  "main": "./dist/node.js",
-  "browser": "./dist/browser.js",
+  "main": "./dist/topster.js",
   "scripts": {
     "build": "tsc",
     "test": "NODE_ENV=test jest"
-  },
-  "dependencies": {
-    "canvas": "^2.8.0"
   },
   "devDependencies": {
     "@types/jest": "^27.0.2",
