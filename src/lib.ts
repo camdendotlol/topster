@@ -38,7 +38,7 @@ interface CanvasInfo {
 
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-const getMaxTitleWidth = (chart: Chart): number => {
+const getMaxTitleWidth = (chart: Chart, ctx: CanvasRenderingContext2D): number => {
   let maxTitleWidth = 0
 
   if (chart.showTitles) {
@@ -46,12 +46,7 @@ const getMaxTitleWidth = (chart: Chart): number => {
       const item = chart.items[x]
       if (item) {
         const name = item.creator ? `${item.creator} - ${item.title}` : item.title
-        // node-canvas's measureText method is broken
-        // so we need to use this weird hardcoded method
-        // each pixel of 14px Ubuntu Mono is roughly 11px wide
-        // this could use some improvement but it keeps the text from getting cut off
-        // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-        const width = (name.length * 11) + chart.gap + 10
+        const width = ctx.measureText(name).width
         if (width > maxTitleWidth) {
           maxTitleWidth = width
         }
@@ -59,7 +54,8 @@ const getMaxTitleWidth = (chart: Chart): number => {
     }
   }
 
-  return maxTitleWidth
+  // A minimum margin of 20px keeps titles from being right up against the sides.
+  return maxTitleWidth + 20 + chart.gap
 }
 
 // Finds how many pixels the horizontal and/or vertical margin should be
@@ -119,7 +115,13 @@ export const setup = (
   chart: Chart
 ): CanvasInfo => {
   const gap = chart.gap
-  const maxItemTitleWidth = getMaxTitleWidth(chart)
+  const ctx = canvas.getContext('2d', { alpha: false })
+
+  if (!ctx) {
+    throw new Error('Rendering context not found, try reloading!')
+  }
+
+  const maxItemTitleWidth = getMaxTitleWidth(chart, ctx)
 
   // height/width of each square cell
   const cellSize = 260
@@ -147,46 +149,46 @@ export const setup = (
 export const drawBackground = (
   canvas: HTMLCanvasElement,
   chart: Chart
-  ): void => {
-    if (chart.background.type === BackgroundTypes.Color) {
+): void => {
+  if (chart.background.type === BackgroundTypes.Color) {
+    const ctx = getContext(canvas)
+    ctx.beginPath()
+    ctx.fillStyle = chart.background.value
+    ctx.fillRect(0, 0, canvas.width, canvas.height)
+  } else {
+    if (chart.background.img?.complete) {
       const ctx = getContext(canvas)
-      ctx.beginPath()
-      ctx.fillStyle = chart.background.value
-      ctx.fillRect(0, 0, canvas.width, canvas.height)
-    } else {
-      if (chart.background.img?.complete) {
-        const ctx = getContext(canvas)
 
-        const imageRatio = chart.background.img.height / chart.background.img.width
-        const canvasRatio = canvas.height / canvas.width
+      const imageRatio = chart.background.img.height / chart.background.img.width
+      const canvasRatio = canvas.height / canvas.width
 
-        if (imageRatio > canvasRatio) {
-          const height = canvas.width * imageRatio
-          ctx.drawImage(
-            chart.background.img,
-            0,
-            Math.floor((canvas.height - height) / 2),
-            canvas.width,
-            height
-          )
-        } else {
-          const width = canvas.width * canvasRatio / imageRatio
-          ctx.drawImage(
-            chart.background.img,
-            Math.floor((canvas.width - width) / 2),
-            0,
-            width,
-            canvas.height
-          )
-        }
-      }
+      if (imageRatio > canvasRatio) {
+        const height = canvas.width * imageRatio
+        ctx.drawImage(
+          chart.background.img,
+          0,
+          Math.floor((canvas.height - height) / 2),
+          canvas.width,
+          height
+        )
+      } else {
+        const width = canvas.width * canvasRatio / imageRatio
+        ctx.drawImage(
+          chart.background.img,
+          Math.floor((canvas.width - width) / 2),
+          0,
+          width,
+          canvas.height
+        )
       }
     }
+  }
+}
 
 export const drawTitle = (
   canvas: HTMLCanvasElement,
   chart: Chart
-) => {
+): void => {
   const ctx = getContext(canvas)
   ctx.font = '38pt "Ubuntu Mono"'
   ctx.fillStyle = '#e9e9e9'

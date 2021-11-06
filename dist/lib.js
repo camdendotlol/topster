@@ -8,26 +8,22 @@ var BackgroundTypes;
 })(BackgroundTypes = exports.BackgroundTypes || (exports.BackgroundTypes = {}));
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-const getMaxTitleWidth = (chart) => {
+const getMaxTitleWidth = (chart, ctx) => {
     let maxTitleWidth = 0;
     if (chart.showTitles) {
         for (let x = 0; x < chart.items.length; x++) {
             const item = chart.items[x];
             if (item) {
                 const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
-                // node-canvas's measureText method is broken
-                // so we need to use this weird hardcoded method
-                // each pixel of 14px Ubuntu Mono is roughly 11px wide
-                // this could use some improvement but it keeps the text from getting cut off
-                // extremely long album titles (e.g. The Idler Wheel) get more padding than they should
-                const width = (name.length * 11) + chart.gap + 10;
+                const width = ctx.measureText(name).width;
                 if (width > maxTitleWidth) {
                     maxTitleWidth = width;
                 }
             }
         }
     }
-    return maxTitleWidth;
+    // A minimum margin of 20px keeps titles from being right up against the sides.
+    return maxTitleWidth + 20 + chart.gap;
 };
 // Finds how many pixels the horizontal and/or vertical margin should be
 // in order to center the cover within its cell.
@@ -70,7 +66,11 @@ exports.drawCover = drawCover;
 // Just calculates some data and sets the size of the chart
 const setup = (canvas, chart) => {
     const gap = chart.gap;
-    const maxItemTitleWidth = getMaxTitleWidth(chart);
+    const ctx = canvas.getContext('2d', { alpha: false });
+    if (!ctx) {
+        throw new Error('Rendering context not found, try reloading!');
+    }
+    const maxItemTitleWidth = getMaxTitleWidth(chart, ctx);
     // height/width of each square cell
     const cellSize = 260;
     const chartTitleMargin = chart.title === '' ? 0 : 60;

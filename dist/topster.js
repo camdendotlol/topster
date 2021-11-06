@@ -15,14 +15,18 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
     }
     const insertTitle = (item, index, coords, maxWidth) => {
         const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title;
-        ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
+        ctx.strokeText(titleString, canvas.width - maxWidth + 10, (25 * index) + (25 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
+        ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (25 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
     // Set up text formatting for titles.
     ctx.shadowOffsetX = 2;
     ctx.shadowOffsetY = 2;
-    ctx.shadowBlur = 3;
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
     ctx.font = '16pt "Ubuntu Mono"';
     ctx.textAlign = 'left';
+    ctx.lineWidth = 0.6;
+    ctx.strokeStyle = 'black';
     chart.items.forEach((item, index) => {
         if (!item) {
             return null;
