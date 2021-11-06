@@ -50,6 +50,13 @@ const insertCoverImages = (
     )
   }
 
+  // Set up text formatting for titles.
+  ctx.shadowOffsetX = 2
+  ctx.shadowOffsetY = 2
+  ctx.shadowBlur = 3
+  ctx.font = '16pt "Ubuntu Mono"'
+  ctx.textAlign = 'left'
+
   chart.items.forEach((item: ChartItem | null, index: number) => {
     if (!item) {
       return null
@@ -77,8 +84,6 @@ const insertCoverImages = (
     )
 
     if (chart.showTitles) {
-      ctx.font = '16pt "Ubuntu Mono"'
-      ctx.textAlign = 'left'
       insertTitle(item, index, coords, maxTitleWidth)
     }
   })

@@ -17,6 +17,12 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title;
         ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (30 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
+    // Set up text formatting for titles.
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 3;
+    ctx.font = '16pt "Ubuntu Mono"';
+    ctx.textAlign = 'left';
     chart.items.forEach((item, index) => {
         if (!item) {
             return null;
@@ -33,8 +39,6 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         };
         insertImage(canvas, item, coords, cellSize, gap, chartTitleMargin);
         if (chart.showTitles) {
-            ctx.font = '16pt "Ubuntu Mono"';
-            ctx.textAlign = 'left';
             insertTitle(item, index, coords, maxTitleWidth);
         }
     });
