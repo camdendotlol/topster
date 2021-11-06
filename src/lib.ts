@@ -173,7 +173,7 @@ export const drawBackground = (
           const width = canvas.width * canvasRatio / imageRatio
           ctx.drawImage(
             chart.background.img,
-            (canvas.width - width),
+            Math.floor((canvas.width - width) / 2),
             0,
             width,
             canvas.height
