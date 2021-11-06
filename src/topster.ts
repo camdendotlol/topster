@@ -43,11 +43,13 @@ const insertCoverImages = (
 
   const insertTitle = (item: ChartItem, index: number, coords: { x: number, y: number }, maxWidth: number) => {
     const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
+
     ctx.strokeText(
       titleString,
       canvas.width - maxWidth + 10,
       (25 * index) + (25 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin
     )
+
     ctx.fillText(
       titleString,
       canvas.width - maxWidth + 10,
@@ -61,9 +63,10 @@ const insertCoverImages = (
   ctx.shadowBlur = 4
   ctx.shadowColor = 'rgba(0,0,0,0.6)'
   ctx.font = '16pt "Ubuntu Mono"'
+  ctx.fillStyle = 'white'
   ctx.textAlign = 'left'
 
-  ctx.lineWidth = 0.6
+  ctx.lineWidth = 0.3
   ctx.strokeStyle = 'black'
 
   chart.items.forEach((item: ChartItem | null, index: number) => {

@@ -24,8 +24,9 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
     ctx.shadowBlur = 4;
     ctx.shadowColor = 'rgba(0,0,0,0.6)';
     ctx.font = '16pt "Ubuntu Mono"';
+    ctx.fillStyle = 'white';
     ctx.textAlign = 'left';
-    ctx.lineWidth = 0.6;
+    ctx.lineWidth = 0.3;
     ctx.strokeStyle = 'black';
     chart.items.forEach((item, index) => {
         if (!item) {

@@ -10,8 +10,11 @@ var BackgroundTypes;
 // wide as the longest title, plus a little bit of margin.
 const getMaxTitleWidth = (chart, ctx) => {
     let maxTitleWidth = 0;
+    ctx.font = '16pt "Ubuntu Mono"';
+    // Don't need to adjust the size for items that aren't visible on the chart
+    const totalItemsOnChart = chart.size.x * chart.size.y;
     if (chart.showTitles) {
-        for (let x = 0; x < chart.items.length; x++) {
+        for (let x = 0; x < totalItemsOnChart; x++) {
             const item = chart.items[x];
             if (item) {
                 const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
@@ -118,9 +121,17 @@ exports.drawBackground = drawBackground;
 const drawTitle = (canvas, chart) => {
     const ctx = getContext(canvas);
     ctx.font = '38pt "Ubuntu Mono"';
-    ctx.fillStyle = '#e9e9e9';
+    ctx.fillStyle = 'white';
     ctx.textAlign = 'center';
+    // Set up text formatting for titles.
+    ctx.shadowOffsetX = 2;
+    ctx.shadowOffsetY = 2;
+    ctx.shadowBlur = 4;
+    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    ctx.lineWidth = 0.2;
+    ctx.strokeStyle = 'black';
     ctx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2));
+    ctx.strokeText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2));
 };
 exports.drawTitle = drawTitle;
 const getContext = (canvas) => {
