@@ -23,8 +23,13 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
     ctx.shadowOffsetY = 2;
     ctx.shadowBlur = 4;
     ctx.shadowColor = 'rgba(0,0,0,0.6)';
-    ctx.font = '16pt "Ubuntu Mono"';
-    ctx.fillStyle = 'white';
+    ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`;
+    if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
+        ctx.fillStyle = chart.textColor;
+    }
+    else {
+        ctx.fillStyle = 'white';
+    }
     ctx.textAlign = 'left';
     ctx.lineWidth = 0.3;
     ctx.strokeStyle = 'black';

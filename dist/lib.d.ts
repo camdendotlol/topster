@@ -23,6 +23,8 @@ export interface Chart {
     };
     showTitles: boolean;
     gap: number;
+    font?: string;
+    textColor?: string;
 }
 interface CanvasInfo {
     width: number;
