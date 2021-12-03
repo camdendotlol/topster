@@ -25,7 +25,9 @@ export interface Chart {
     img: HTMLImageElement | null
   },
   showTitles: boolean,
-  gap: number
+  gap: number,
+  font?: string,
+  textColor?: string
 }
 
 interface CanvasInfo {
@@ -40,7 +42,12 @@ interface CanvasInfo {
 // wide as the longest title, plus a little bit of margin.
 const getMaxTitleWidth = (chart: Chart, ctx: CanvasRenderingContext2D): number => {
   let maxTitleWidth = 0
-  ctx.font = '16pt "Ubuntu Mono"'
+  ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`
+  if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
+    ctx.fillStyle = chart.textColor
+  } else {
+    ctx.fillStyle = 'white'
+  }
 
   // Don't need to adjust the size for items that aren't visible on the chart
   const totalItemsOnChart = chart.size.x * chart.size.y
@@ -194,8 +201,12 @@ export const drawTitle = (
   chart: Chart
 ): void => {
   const ctx = getContext(canvas)
-  ctx.font = '38pt "Ubuntu Mono"'
-  ctx.fillStyle = 'white'
+  ctx.font = `38pt ${chart.font ? chart.font : 'monospace'}`
+  if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
+    ctx.fillStyle = chart.textColor
+  } else {
+    ctx.fillStyle = 'white'
+  }
   ctx.textAlign = 'center'
   // Set up text formatting for titles.
   ctx.shadowOffsetX = 2
