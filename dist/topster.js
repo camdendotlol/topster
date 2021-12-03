@@ -18,11 +18,13 @@ const insertCoverImages = (canvas, chart, cellSize, gap, maxTitleWidth, chartTit
         ctx.strokeText(titleString, canvas.width - maxWidth + 10, (25 * index) + (25 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
         ctx.fillText(titleString, canvas.width - maxWidth + 10, (25 * index) + (25 + gap) + ((coords.y % (index + 1)) * 35) + chartTitleMargin);
     };
-    // Set up text formatting for titles.
-    ctx.shadowOffsetX = 2;
-    ctx.shadowOffsetY = 2;
-    ctx.shadowBlur = 4;
-    ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    if (chart.shadows !== false) {
+        // Set up text formatting for titles.
+        ctx.shadowOffsetX = 2;
+        ctx.shadowOffsetY = 2;
+        ctx.shadowBlur = 4;
+        ctx.shadowColor = 'rgba(0,0,0,0.6)';
+    }
     ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`;
     if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
         ctx.fillStyle = chart.textColor;

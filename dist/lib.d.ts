@@ -25,6 +25,7 @@ export interface Chart {
     gap: number;
     font?: string;
     textColor?: string;
+    shadows?: boolean;
 }
 interface CanvasInfo {
     width: number;

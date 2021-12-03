@@ -27,7 +27,8 @@ export interface Chart {
   showTitles: boolean,
   gap: number,
   font?: string,
-  textColor?: string
+  textColor?: string,
+  shadows?: boolean
 }
 
 interface CanvasInfo {
@@ -208,11 +209,15 @@ export const drawTitle = (
     ctx.fillStyle = 'white'
   }
   ctx.textAlign = 'center'
-  // Set up text formatting for titles.
-  ctx.shadowOffsetX = 2
-  ctx.shadowOffsetY = 2
-  ctx.shadowBlur = 4
-  ctx.shadowColor = 'rgba(0,0,0,0.6)'
+
+  if (chart.shadows !== false) {
+    // Set up text formatting for titles.
+    ctx.shadowOffsetX = 2
+    ctx.shadowOffsetY = 2
+    ctx.shadowBlur = 4
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'
+  }
+
   ctx.lineWidth = 0.2
   ctx.strokeStyle = 'black'
   ctx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))

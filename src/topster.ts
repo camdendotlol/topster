@@ -57,11 +57,14 @@ const insertCoverImages = (
     )
   }
 
-  // Set up text formatting for titles.
-  ctx.shadowOffsetX = 2
-  ctx.shadowOffsetY = 2
-  ctx.shadowBlur = 4
-  ctx.shadowColor = 'rgba(0,0,0,0.6)'
+  if (chart.shadows !== false) {
+    // Set up text formatting for titles.
+    ctx.shadowOffsetX = 2
+    ctx.shadowOffsetY = 2
+    ctx.shadowBlur = 4
+    ctx.shadowColor = 'rgba(0,0,0,0.6)'
+  }
+
   ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`
   if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
     ctx.fillStyle = chart.textColor
