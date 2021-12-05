@@ -27,25 +27,26 @@ export interface Chart {
     textColor?: string;
     shadows?: boolean;
 }
-interface CanvasInfo {
+export interface CanvasInfo {
     width: number;
     height: number;
     cellSize: number;
     chartTitleMargin: number;
     maxItemTitleWidth: number;
+    ctx: CanvasRenderingContext2D;
 }
 export declare const getScaledDimensions: (img: HTMLImageElement, cellSize: number) => {
     height: number;
     width: number;
 };
-export declare const drawCover: (canvas: HTMLCanvasElement, cover: HTMLImageElement, coords: {
+export declare const drawCover: (cover: HTMLImageElement, coords: {
     x: number;
     y: number;
-}, cellSize: number, gap: number, dimensions: {
-    height: number;
-    width: number;
-}, chartTitleMargin: number) => void;
+}, gap: number, canvasInfo: CanvasInfo) => void;
+export declare const getMinimumHeight: (chart: Chart, ctx: CanvasRenderingContext2D, titleMargin: number) => number;
+export declare const insertTitles: (canvasInfo: CanvasInfo, chart: Chart) => void;
 export declare const setup: (canvas: HTMLCanvasElement, chart: Chart) => CanvasInfo;
-export declare const drawBackground: (canvas: HTMLCanvasElement, chart: Chart) => void;
-export declare const drawTitle: (canvas: HTMLCanvasElement, chart: Chart) => void;
+export declare const drawBackground: (canvasInfo: CanvasInfo, chart: Chart) => void;
+export declare const drawTitle: (canvasInfo: CanvasInfo, chart: Chart) => void;
+export declare const insertCoverImages: (chart: Chart, canvasInfo: CanvasInfo) => void;
 export {};

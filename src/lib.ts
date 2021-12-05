@@ -31,12 +31,13 @@ export interface Chart {
   shadows?: boolean
 }
 
-interface CanvasInfo {
+export interface CanvasInfo {
   width: number,
   height: number,
   cellSize: number,
   chartTitleMargin: number,
-  maxItemTitleWidth: number
+  maxItemTitleWidth: number,
+  ctx: CanvasRenderingContext2D
 }
 
 // The sidebar containing the titles of chart items should only be as
@@ -100,25 +101,90 @@ export const getScaledDimensions = (img: HTMLImageElement, cellSize: number): { 
 }
 
 export const drawCover = (
-  canvas: HTMLCanvasElement,
   cover: HTMLImageElement,
   coords: { x: number, y: number },
-  cellSize: number,
   gap: number,
-  dimensions: { height: number, width: number },
-  chartTitleMargin: number
+  canvasInfo: CanvasInfo
 ): void => {
-  const ctx = getContext(canvas)
+  const dimensions = getScaledDimensions(cover, canvasInfo.cellSize)
 
-  ctx.drawImage(
+  canvasInfo.ctx.drawImage(
     // We have to cast this as HTMLImageElement even if it's a Node Canvas Image,
     // because ctx doesn't know what to do with the latter.
     cover as HTMLImageElement,
-    (coords.x * (cellSize + gap)) + gap + findCenteringOffset(dimensions.width, cellSize),
-    (coords.y * (cellSize + gap)) + gap + findCenteringOffset(dimensions.height, cellSize) + chartTitleMargin,
+    (coords.x * (canvasInfo.cellSize + gap)) + gap + findCenteringOffset(dimensions.width, canvasInfo.cellSize),
+    (coords.y * (canvasInfo.cellSize + gap)) + gap + findCenteringOffset(dimensions.height, canvasInfo.cellSize) + canvasInfo.chartTitleMargin,
     dimensions.width,
     dimensions.height
   )
+}
+
+// Calculate the height required by album titles to make
+// sure that the ones on the bottom don't get cut off if
+// they go below the bottom row of chart items.
+export const getMinimumHeight = (
+  chart: Chart,
+  ctx: CanvasRenderingContext2D,
+  titleMargin: number
+): number => {
+  const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y)
+
+  ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`
+
+  let height = (chart.gap * 2) + titleMargin
+
+  for (let i = 0; i < itemsInScope.length; i++) {
+    if (itemsInScope[i]) {
+      height = height + 25
+      if (i % chart.size.x === 0 && i !== 0) {
+        height = height + 25
+      }
+    }
+  }
+
+  return height
+}
+
+export const insertTitles = (
+  canvasInfo: CanvasInfo,
+  chart: Chart
+): void => {
+  const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y)
+
+  canvasInfo.ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`
+  canvasInfo.ctx.textAlign = 'left'
+  canvasInfo.ctx.lineWidth = 0.3
+  canvasInfo.ctx.strokeStyle = 'black'
+
+  // Increment this below with each successive title
+  let currentHeight = canvasInfo.chartTitleMargin + chart.gap
+
+  itemsInScope.forEach((item, index) => {
+    // Keep a margin to correspond with rows
+    if (index % chart.size.x === 0 && index !== 0) {
+      currentHeight = currentHeight + 25
+    }
+
+    if (!item) {
+      return null
+    }
+
+    const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
+
+    currentHeight = currentHeight + 25
+
+    canvasInfo.ctx.strokeText(
+      titleString,
+      canvasInfo.width - canvasInfo.maxItemTitleWidth + 10,
+      currentHeight
+    )
+
+    canvasInfo.ctx.fillText(
+      titleString,
+      canvasInfo.width - canvasInfo.maxItemTitleWidth + 10,
+      currentHeight
+    )
+  })
 }
 
 // Just calculates some data and sets the size of the chart
@@ -146,6 +212,13 @@ export const setup = (
     y: (chart.size.y * (cellSize + gap)) + gap + chartTitleMargin
   }
 
+  if (chart.showTitles) {
+    const minimumHeight = getMinimumHeight(chart, ctx, chartTitleMargin)
+    if (pixelDimensions.y < minimumHeight) {
+      pixelDimensions.y = minimumHeight
+    }
+  }
+
   canvas.width = pixelDimensions.x
   canvas.height = pixelDimensions.y
 
@@ -154,43 +227,43 @@ export const setup = (
     height: pixelDimensions.y,
     cellSize,
     chartTitleMargin,
-    maxItemTitleWidth
+    maxItemTitleWidth,
+    ctx
   }
 }
 
 export const drawBackground = (
-  canvas: HTMLCanvasElement,
+  canvasInfo: CanvasInfo,
   chart: Chart
 ): void => {
+  const ctx = canvasInfo.ctx
+
   if (chart.background.type === BackgroundTypes.Color) {
-    const ctx = getContext(canvas)
     ctx.beginPath()
     ctx.fillStyle = chart.background.value
-    ctx.fillRect(0, 0, canvas.width, canvas.height)
+    ctx.fillRect(0, 0, canvasInfo.width, canvasInfo.height)
   } else {
     if (chart.background.img?.complete) {
-      const ctx = getContext(canvas)
-
       const imageRatio = chart.background.img.height / chart.background.img.width
-      const canvasRatio = canvas.height / canvas.width
+      const canvasRatio = canvasInfo.height / canvasInfo.width
 
       if (imageRatio > canvasRatio) {
-        const height = canvas.width * imageRatio
+        const height = canvasInfo.width * imageRatio
         ctx.drawImage(
           chart.background.img,
           0,
-          Math.floor((canvas.height - height) / 2),
-          canvas.width,
+          Math.floor((canvasInfo.height - height) / 2),
+          canvasInfo.width,
           height
         )
       } else {
-        const width = canvas.width * canvasRatio / imageRatio
+        const width = canvasInfo.width * canvasRatio / imageRatio
         ctx.drawImage(
           chart.background.img,
-          Math.floor((canvas.width - width) / 2),
+          Math.floor((canvasInfo.width - width) / 2),
           0,
           width,
-          canvas.height
+          canvasInfo.height
         )
       }
     }
@@ -198,10 +271,10 @@ export const drawBackground = (
 }
 
 export const drawTitle = (
-  canvas: HTMLCanvasElement,
+  canvasInfo: CanvasInfo,
   chart: Chart
 ): void => {
-  const ctx = getContext(canvas)
+  const ctx = canvasInfo.ctx
   ctx.font = `38pt ${chart.font ? chart.font : 'monospace'}`
   if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
     ctx.fillStyle = chart.textColor
@@ -210,26 +283,38 @@ export const drawTitle = (
   }
   ctx.textAlign = 'center'
 
-  if (chart.shadows !== false) {
-    // Set up text formatting for titles.
-    ctx.shadowOffsetX = 2
-    ctx.shadowOffsetY = 2
-    ctx.shadowBlur = 4
-    ctx.shadowColor = 'rgba(0,0,0,0.6)'
-  }
-
   ctx.lineWidth = 0.2
   ctx.strokeStyle = 'black'
-  ctx.fillText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
-  ctx.strokeText(chart.title, canvas.width / 2, ((chart.gap + 90) / 2))
+  ctx.fillText(chart.title, canvasInfo.width / 2, ((chart.gap + 90) / 2))
+  ctx.strokeText(chart.title, canvasInfo.width / 2, ((chart.gap + 90) / 2))
 }
 
-const getContext = (canvas: HTMLCanvasElement) => {
-  const ctx = canvas.getContext('2d')
+export const insertCoverImages = (
+  chart: Chart,
+  canvasInfo: CanvasInfo
+): void => {
+  chart.items.forEach((item: ChartItem | null, index: number) => {
+    if (!item) {
+      return null
+    }
 
-  if (!ctx) {
-    throw new Error('Missing canvas context.')
-  }
+    // Don't overflow outside the bounds of the chart
+    // This way, items will be saved if the chart is too big for them
+    // and the user can just expand the chart and they'll fill in again
+    if (index + 1 > chart.size.x * chart.size.y) {
+      return null
+    }
 
-  return ctx
+    const coords = {
+      x: (index % chart.size.x),
+      y: Math.floor(index / chart.size.x)
+    }
+
+    drawCover(
+      item.coverImg,
+      coords,
+      chart.gap,
+      canvasInfo
+    )
+  })
 }
