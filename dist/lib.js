@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.insertCoverImages = exports.drawTitle = exports.drawBackground = exports.setup = exports.insertTitles = exports.getMinimumHeight = exports.drawCover = exports.getScaledDimensions = exports.BackgroundTypes = void 0;
+exports.insertCoverImages = exports.drawTitle = exports.drawBackground = exports.setup = exports.insertTitles = exports.buildTitles = exports.getMinimumHeight = exports.drawCover = exports.getScaledDimensions = exports.BackgroundTypes = void 0;
 var BackgroundTypes;
 (function (BackgroundTypes) {
     BackgroundTypes["Color"] = "color";
@@ -8,7 +8,7 @@ var BackgroundTypes;
 })(BackgroundTypes = exports.BackgroundTypes || (exports.BackgroundTypes = {}));
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-const getMaxTitleWidth = (chart, ctx) => {
+const getMaxTitleWidth = (chart, titles, ctx) => {
     let maxTitleWidth = 0;
     ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`;
     if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
@@ -17,20 +17,12 @@ const getMaxTitleWidth = (chart, ctx) => {
     else {
         ctx.fillStyle = 'white';
     }
-    // Don't need to adjust the size for items that aren't visible on the chart
-    const totalItemsOnChart = chart.size.x * chart.size.y;
-    if (chart.showTitles) {
-        for (let x = 0; x < totalItemsOnChart; x++) {
-            const item = chart.items[x];
-            if (item) {
-                const name = item.creator ? `${item.creator} - ${item.title}` : item.title;
-                const width = ctx.measureText(name).width;
-                if (width > maxTitleWidth) {
-                    maxTitleWidth = width;
-                }
-            }
+    Object.keys(titles).forEach((key) => {
+        const width = ctx.measureText(titles[parseInt(key)]).width;
+        if (width > maxTitleWidth) {
+            maxTitleWidth = width;
         }
-    }
+    });
     // A minimum margin of 20px keeps titles from being right up against the sides.
     return maxTitleWidth + 20 + chart.gap;
 };
@@ -90,7 +82,27 @@ const getMinimumHeight = (chart, ctx, titleMargin) => {
     return height;
 };
 exports.getMinimumHeight = getMinimumHeight;
-const insertTitles = (canvasInfo, chart) => {
+const buildTitles = (chart) => {
+    const titles = {};
+    const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y);
+    let count = 0;
+    itemsInScope.forEach((item, index) => {
+        if (item) {
+            count += 1;
+            let titleString = item.title;
+            if (item.creator) {
+                titleString = `${item.creator} - ${titleString}`;
+            }
+            if (chart.showNumbers) {
+                titleString = `${count}. ${titleString}`;
+            }
+            titles[index] = titleString;
+        }
+    });
+    return titles;
+};
+exports.buildTitles = buildTitles;
+const insertTitles = (canvasInfo, chart, titles) => {
     const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y);
     canvasInfo.ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`;
     canvasInfo.ctx.textAlign = 'left';
@@ -106,7 +118,7 @@ const insertTitles = (canvasInfo, chart) => {
         if (!item) {
             return null;
         }
-        const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title;
+        const titleString = titles[index];
         currentHeight = currentHeight + 25;
         canvasInfo.ctx.strokeText(titleString, canvasInfo.width - canvasInfo.maxItemTitleWidth + 10, currentHeight);
         canvasInfo.ctx.fillText(titleString, canvasInfo.width - canvasInfo.maxItemTitleWidth + 10, currentHeight);
@@ -120,7 +132,12 @@ const setup = (canvas, chart) => {
     if (!ctx) {
         throw new Error('Rendering context not found, try reloading!');
     }
-    const maxItemTitleWidth = getMaxTitleWidth(chart, ctx);
+    let maxItemTitleWidth = 0;
+    let titles = {};
+    if (chart.showTitles) {
+        titles = (0, exports.buildTitles)(chart);
+        maxItemTitleWidth = getMaxTitleWidth(chart, titles, ctx);
+    }
     // height/width of each square cell
     const cellSize = 260;
     const chartTitleMargin = chart.title === '' ? 0 : 60;
@@ -143,6 +160,7 @@ const setup = (canvas, chart) => {
         cellSize,
         chartTitleMargin,
         maxItemTitleWidth,
+        titles,
         ctx
     };
 };

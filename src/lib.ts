@@ -24,11 +24,16 @@ export interface Chart {
     value: string,
     img: HTMLImageElement | null
   },
+  showNumbers: boolean,
   showTitles: boolean,
   gap: number,
   font?: string,
   textColor?: string,
   shadows?: boolean
+}
+
+interface TitleMap {
+  [key: number]: string
 }
 
 export interface CanvasInfo {
@@ -37,12 +42,13 @@ export interface CanvasInfo {
   cellSize: number,
   chartTitleMargin: number,
   maxItemTitleWidth: number,
+  titles: TitleMap,
   ctx: CanvasRenderingContext2D
 }
 
 // The sidebar containing the titles of chart items should only be as
 // wide as the longest title, plus a little bit of margin.
-const getMaxTitleWidth = (chart: Chart, ctx: CanvasRenderingContext2D): number => {
+const getMaxTitleWidth = (chart: Chart, titles: TitleMap, ctx: CanvasRenderingContext2D): number => {
   let maxTitleWidth = 0
   ctx.font = `16pt ${chart.font ? chart.font : 'monospace'}`
   if (chart.textColor && /^#[0-9A-F]{6}$/i.test(chart.textColor)) {
@@ -51,21 +57,12 @@ const getMaxTitleWidth = (chart: Chart, ctx: CanvasRenderingContext2D): number =
     ctx.fillStyle = 'white'
   }
 
-  // Don't need to adjust the size for items that aren't visible on the chart
-  const totalItemsOnChart = chart.size.x * chart.size.y
-
-  if (chart.showTitles) {
-    for (let x = 0; x < totalItemsOnChart; x++) {
-      const item = chart.items[x]
-      if (item) {
-        const name = item.creator ? `${item.creator} - ${item.title}` : item.title
-        const width = ctx.measureText(name).width
-        if (width > maxTitleWidth) {
-          maxTitleWidth = width
-        }
-      }
+  Object.keys(titles).forEach((key) => {
+    const width = ctx.measureText(titles[parseInt(key)]).width
+    if (width > maxTitleWidth) {
+      maxTitleWidth = width
     }
-  }
+  })
 
   // A minimum margin of 20px keeps titles from being right up against the sides.
   return maxTitleWidth + 20 + chart.gap
@@ -145,9 +142,36 @@ export const getMinimumHeight = (
   return height
 }
 
+export const buildTitles = (chart: Chart): TitleMap => {
+  const titles: TitleMap = {}
+
+  const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y)
+  let count = 0
+
+  itemsInScope.forEach((item, index) => {
+    if (item) {
+      count += 1
+      let titleString = item.title
+
+      if (item.creator) {
+        titleString = `${item.creator} - ${titleString}`
+      }
+
+      if (chart.showNumbers) {
+        titleString = `${count}. ${titleString}`
+      }
+
+      titles[index] = titleString
+    }
+  })
+
+  return titles
+}
+
 export const insertTitles = (
   canvasInfo: CanvasInfo,
-  chart: Chart
+  chart: Chart,
+  titles: TitleMap
 ): void => {
   const itemsInScope = chart.items.slice(0, chart.size.x * chart.size.y)
 
@@ -169,7 +193,7 @@ export const insertTitles = (
       return null
     }
 
-    const titleString = item.creator ? `${item.creator} - ${item.title}` : item.title
+    const titleString = titles[index]
 
     currentHeight = currentHeight + 25
 
@@ -199,7 +223,12 @@ export const setup = (
     throw new Error('Rendering context not found, try reloading!')
   }
 
-  const maxItemTitleWidth = getMaxTitleWidth(chart, ctx)
+  let maxItemTitleWidth = 0
+  let titles: TitleMap = {}
+  if (chart.showTitles) {
+    titles = buildTitles(chart)
+    maxItemTitleWidth = getMaxTitleWidth(chart, titles, ctx)
+  }
 
   // height/width of each square cell
   const cellSize = 260
@@ -228,6 +257,7 @@ export const setup = (
     cellSize,
     chartTitleMargin,
     maxItemTitleWidth,
+    titles,
     ctx
   }
 }

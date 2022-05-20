@@ -4,7 +4,8 @@ import {
   drawTitle,
   drawBackground,
   insertTitles,
-  insertCoverImages
+  insertCoverImages,
+  buildTitles
 } from './lib'
 
 const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
@@ -12,8 +13,8 @@ const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasEleme
 
   drawBackground(canvasInfo, chart)
 
-  // Default bahavior is to include shadows, so we still use them if chart.shadows is undefined.
-  if (chart.shadows !== false) {
+  // Default bahavior is to not include shadows, so we won't use them if chart.shadows is undefined.
+  if (chart.shadows === true) {
     canvasInfo.ctx.shadowOffsetX = 2
     canvasInfo.ctx.shadowOffsetY = 2
     canvasInfo.ctx.shadowBlur = 4
@@ -38,9 +39,12 @@ const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasEleme
   )
 
   if (chart.showTitles) {
+    buildTitles(chart)
+
     insertTitles(
       canvasInfo,
-      chart
+      chart,
+      canvasInfo.titles
     )
   }
 
