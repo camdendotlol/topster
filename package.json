@@ -10,14 +10,10 @@
   },
   "main": "./dist/topster.js",
   "scripts": {
-    "build": "tsc",
-    "test": "NODE_ENV=test jest"
+    "build": "tsc"
   },
   "devDependencies": {
-    "@types/jest": "^27.0.2",
     "@types/node": "^16.10.2",
-    "jest": "^27.3.1",
-    "ts-jest": "^27.0.7",
     "typescript": "^4.4.3"
   }
 }
