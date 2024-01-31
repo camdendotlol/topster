@@ -14,11 +14,13 @@ Topster exposes a single function that you can import:
 import generateChart from 'topster'
 ```
 
-`generateChart` expects two arguments.
+`generateChart` expects two arguments plus an optional argument.
 
 1. A canvas. It should be a standard HTML Canvas element of the `HTMLCanvasElement` type. It doesn't matter whether you send a blank canvas or one with stuff drawn on it, but keep in mind that Topster will resize the canvas to match the chart content.
 
 2. An object of type `Chart` containing chart data.
+
+3. (Optional) The size of each cell in the grid, in pixels. Default is 260.
 
 ```ts
 interface Chart {
