@@ -51,7 +51,7 @@ export declare const drawCover: (cover: HTMLImageElement, coords: {
 export declare const getMinimumHeight: (chart: Chart, ctx: CanvasRenderingContext2D, titleMargin: number) => number;
 export declare const buildTitles: (chart: Chart) => TitleMap;
 export declare const insertTitles: (canvasInfo: CanvasInfo, chart: Chart, titles: TitleMap) => void;
-export declare const setup: (canvas: HTMLCanvasElement, chart: Chart) => CanvasInfo;
+export declare const setup: (canvas: HTMLCanvasElement, chart: Chart, cellSize: number) => CanvasInfo;
 export declare const drawBackground: (canvasInfo: CanvasInfo, chart: Chart) => void;
 export declare const drawTitle: (canvasInfo: CanvasInfo, chart: Chart) => void;
 export declare const insertCoverImages: (chart: Chart, canvasInfo: CanvasInfo) => void;

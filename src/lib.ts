@@ -214,7 +214,8 @@ export const insertTitles = (
 // Just calculates some data and sets the size of the chart
 export const setup = (
   canvas: HTMLCanvasElement,
-  chart: Chart
+  chart: Chart,
+  cellSize: number
 ): CanvasInfo => {
   const gap = chart.gap
   const ctx = canvas.getContext('2d', { alpha: false })
@@ -229,9 +230,6 @@ export const setup = (
     titles = buildTitles(chart)
     maxItemTitleWidth = getMaxTitleWidth(chart, titles, ctx)
   }
-
-  // height/width of each square cell
-  const cellSize = 260
 
   const chartTitleMargin = chart.title === '' ? 0 : 60
 

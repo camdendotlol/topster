@@ -8,8 +8,12 @@ import {
   buildTitles
 } from './lib'
 
-const generateChart = (canvas: HTMLCanvasElement, chart: Chart): HTMLCanvasElement => {
-  const canvasInfo = setup(canvas, chart)
+const generateChart = (
+  canvas: HTMLCanvasElement,
+  chart: Chart,
+  cellSize = 260
+): HTMLCanvasElement => {
+  const canvasInfo = setup(canvas, chart, cellSize)
 
   drawBackground(canvasInfo, chart)
 

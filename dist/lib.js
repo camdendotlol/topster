@@ -126,7 +126,7 @@ const insertTitles = (canvasInfo, chart, titles) => {
 };
 exports.insertTitles = insertTitles;
 // Just calculates some data and sets the size of the chart
-const setup = (canvas, chart) => {
+const setup = (canvas, chart, cellSize) => {
     const gap = chart.gap;
     const ctx = canvas.getContext('2d', { alpha: false });
     if (!ctx) {
@@ -138,8 +138,6 @@ const setup = (canvas, chart) => {
         titles = (0, exports.buildTitles)(chart);
         maxItemTitleWidth = getMaxTitleWidth(chart, titles, ctx);
     }
-    // height/width of each square cell
-    const cellSize = 260;
     const chartTitleMargin = chart.title === '' ? 0 : 60;
     const pixelDimensions = {
         // room for each cell + gap between cells + margins
